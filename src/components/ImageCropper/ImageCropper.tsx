@@ -206,7 +206,6 @@ export function ImageCropper({ imageUrl, onCropComplete, onCancel }: Params) {
 
     if (isResizing && imageRef.current) {
       const dx = x - dragStart.x;
-      const dy = y - dragStart.y;
 
       let newCrop = { ...crop };
 
