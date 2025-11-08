@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="Builds the project"
+#MISE alias="build"
+set -e
+npm run build

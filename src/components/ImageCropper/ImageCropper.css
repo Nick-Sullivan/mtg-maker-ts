@@ -1,0 +1,128 @@
+.image-cropper-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.image-cropper-modal {
+  background: white;
+  border-radius: 12px;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 15px;
+}
+
+.image-cropper-header {
+  text-align: center;
+}
+
+.image-cropper-header h3 {
+  margin: 0 0 5px 0;
+  font-size: 1.3rem;
+  color: #333;
+}
+
+.image-cropper-header p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.image-cropper-canvas-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  background: #f5f5f5;
+  border-radius: 8px;
+  min-height: 400px;
+}
+
+.image-cropper-canvas {
+  max-width: 100%;
+  max-height: 60vh;
+  cursor: move;
+  display: block;
+}
+
+.image-cropper-loading {
+  padding: 40px;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.image-cropper-controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.btn-zoom {
+  background: #f0f0f0;
+  color: #333;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-zoom:hover {
+  background: #e0e0e0;
+  border-color: #667eea;
+}
+
+.image-cropper-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+.btn-cancel {
+  background: #6c757d;
+  color: white;
+  padding: 10px 24px;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: 600;
+}
+
+.btn-cancel:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+}
+
+.btn-confirm {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 10px 24px;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: 600;
+}
+
+.btn-confirm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
