@@ -2,6 +2,6 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  base: "/mtg_maker_ts/",
+  base: "/mtg-maker-ts/",
   plugins: [react()],
 });
