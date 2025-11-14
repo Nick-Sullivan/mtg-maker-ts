@@ -3,7 +3,3 @@
 #MISE alias="in"
 set -e
 npm install
-cd terraform
-terraform init
-cd ..
-
