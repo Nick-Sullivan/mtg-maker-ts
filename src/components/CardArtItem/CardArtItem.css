@@ -15,33 +15,40 @@
 .card-art-item img {
   width: 100%;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.4),
+    0 0 12px rgba(46, 125, 50, 0.3);
   transition: transform 0.2s, box-shadow 0.2s;
+  border: 2px solid rgba(76, 175, 80, 0.2);
 }
 
 .card-art-item[style*="cursor: pointer"] img:hover {
   transform: scale(1.05);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 
+    0 6px 12px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(76, 175, 80, 0.6);
+  border-color: rgba(76, 175, 80, 0.5);
 }
 
 .card-label {
   text-align: center;
   font-size: 0.9rem;
-  color: #333;
+  color: #a8d5a8;
   font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .card-placeholder {
   width: 200px;
   height: 280px;
-  background: #f0f0f0;
-  border: 2px dashed #ccc;
+  background: rgba(13, 31, 13, 0.6);
+  border: 2px dashed rgba(76, 175, 80, 0.5);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  color: #666;
+  color: #a8d5a8;
   padding: 20px;
   white-space: pre-line;
 }
@@ -50,21 +57,22 @@
   position: absolute;
   top: 8px;
   left: 8px;
-  background: rgba(0, 0, 0, 0.75);
-  color: white;
+  background: rgba(0, 0, 0, 0.85);
+  color: #7dff7d;
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 0.7rem;
   font-weight: 600;
   pointer-events: none;
+  border: 1px solid rgba(76, 175, 80, 0.3);
 }
 
 .click-hint {
   position: absolute;
   bottom: 8px;
   right: 8px;
-  background: rgba(102, 126, 234, 0.9);
-  color: white;
+  background: rgba(46, 125, 50, 0.9);
+  color: #e8f5e9;
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 0.7rem;
@@ -72,6 +80,7 @@
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.2s;
+  border: 1px solid rgba(76, 175, 80, 0.5);
 }
 
 .card-art-item[style*="cursor: pointer"]:hover .click-hint {
@@ -81,18 +90,19 @@
 .card-loading-container {
   width: 200px;
   height: 280px;
-  background: #f0f0f0;
+  background: rgba(13, 31, 13, 0.6);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 2px solid rgba(46, 125, 50, 0.3);
 }
 
 .spinner {
   width: 50px;
   height: 50px;
-  border: 4px solid #ddd;
-  border-top: 4px solid #667eea;
+  border: 4px solid rgba(46, 125, 50, 0.3);
+  border-top: 4px solid #4caf50;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }

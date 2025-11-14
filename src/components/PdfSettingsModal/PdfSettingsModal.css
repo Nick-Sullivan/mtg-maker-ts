@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -13,14 +13,17 @@
 }
 
 .pdf-settings-content {
-  background: white;
+  background: linear-gradient(to bottom, #1e3a1e 0%, #0d1f0d 100%);
   border-radius: 12px;
   max-width: 500px;
   width: 100%;
   display: flex;
   flex-direction: column;
   position: relative;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.7),
+    0 0 30px rgba(34, 139, 34, 0.4);
+  border: 2px solid rgba(46, 125, 50, 0.4);
 }
 
 .pdf-settings-close {
@@ -30,7 +33,7 @@
   background: none;
   border: none;
   font-size: 2.5rem;
-  color: #666;
+  color: #a8d5a8;
   cursor: pointer;
   padding: 0;
   width: 40px;
@@ -44,19 +47,20 @@
 }
 
 .pdf-settings-close:hover {
-  background: #f0f0f0;
-  color: #333;
+  background: rgba(46, 125, 50, 0.3);
+  color: #7dff7d;
 }
 
 .pdf-settings-header {
   padding: 20px 60px 10px 20px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid rgba(46, 125, 50, 0.3);
 }
 
 .pdf-settings-header h2 {
   margin: 0;
   font-size: 1.5rem;
-  color: #333;
+  color: #7dff7d;
+  text-shadow: 0 0 8px rgba(125, 255, 125, 0.4);
 }
 
 .pdf-settings-body {
@@ -75,62 +79,74 @@
 
 .pdf-setting-row label {
   font-weight: 600;
-  color: #333;
+  color: #a8d5a8;
   font-size: 1rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .pdf-setting-row input {
   width: 100px;
   padding: 8px 12px;
-  border: 2px solid #ddd;
+  border: 2px solid rgba(46, 125, 50, 0.5);
   border-radius: 6px;
   font-size: 1rem;
-  transition: border-color 0.3s;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  background: rgba(13, 31, 13, 0.6);
+  color: #e8f5e9;
 }
 
 .pdf-setting-row input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #4caf50;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.4);
 }
 
 .pdf-settings-actions {
   padding: 15px 20px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid rgba(46, 125, 50, 0.3);
   display: flex;
   gap: 10px;
   justify-content: flex-end;
 }
 
 .pdf-settings-actions .btn-cancel {
-  background: #6c757d;
-  color: white;
+  background: #424242;
+  color: #e8f5e9;
   padding: 10px 24px;
   font-size: 1rem;
   border-radius: 6px;
-  border: none;
+  border: 2px solid rgba(66, 66, 66, 0.4);
   cursor: pointer;
   transition: all 0.3s;
   font-weight: 600;
 }
 
 .pdf-settings-actions .btn-cancel:hover {
-  background: #5a6268;
+  background: #616161;
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(66, 66, 66, 0.4);
 }
 
 .pdf-settings-actions .btn-generate {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+  color: #e8f5e9;
   padding: 10px 24px;
   font-size: 1rem;
   border-radius: 6px;
-  border: none;
+  border: 2px solid rgba(76, 175, 80, 0.4);
   cursor: pointer;
   transition: all 0.3s;
   font-weight: 600;
+  box-shadow: 
+    0 4px 12px rgba(46, 125, 50, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .pdf-settings-actions .btn-generate:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 
+    0 6px 20px rgba(46, 125, 50, 0.6),
+    0 0 15px rgba(76, 175, 80, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
 }

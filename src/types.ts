@@ -3,6 +3,7 @@ export interface Card {
   name: string;
   requestedSet?: string;
   requestedCollectorNumber?: string;
+  hasCustomImage?: boolean;
 }
 
 export interface Deck {

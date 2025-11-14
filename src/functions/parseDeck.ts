@@ -1,5 +1,4 @@
 import { Card, Deck } from "../types";
-
 export const parseDeck = (text: string): Deck => {
   const trimmedText = text.trim();
   const lines = trimmedText ? trimmedText.split("\n") : [];
@@ -8,9 +7,12 @@ export const parseDeck = (text: string): Deck => {
     const trimmedLine = line.trim();
     if (!trimmedLine) return;
 
-    // Remove (Custom Image) marker
+    // Check if this has a [CUSTOM] marker
+    const hasCustomImage = /\[CUSTOM\]/i.test(trimmedLine);
+
+    // Remove [CUSTOM] marker for parsing
     const lineWithoutCustomMarker = trimmedLine
-      .replace(/\s*\(Custom Image\)\s*$/i, "")
+      .replace(/\s*\[CUSTOM\]\s*/i, "")
       .trim();
 
     // Extract set information in brackets [SET:NUM]
@@ -35,6 +37,7 @@ export const parseDeck = (text: string): Deck => {
         name: name.trim(),
         requestedSet,
         requestedCollectorNumber,
+        hasCustomImage,
       });
     }
   });

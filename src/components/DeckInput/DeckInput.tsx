@@ -9,7 +9,7 @@ interface Params {
 export function DeckInput({ value, disabled, onChange }: Params) {
   return (
     <div className="input-section">
-      <label htmlFor="cardList">Paste Your Card List:</label>
+      {/* <label htmlFor="cardList">Paste Your Card List:</label> */}
       <textarea
         id="cardList"
         value={value}

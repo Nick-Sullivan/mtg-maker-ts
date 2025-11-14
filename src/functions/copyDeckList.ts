@@ -4,15 +4,17 @@ export const formatDeckList = (deck: DeckWithMetadata): string => {
   const lines: string[] = [];
 
   deck.cards.forEach((card) => {
-    const selectedPrinting = card.allPrintings[card.selectedIndex];
-    const setInfo = selectedPrinting
-      ? ` [${selectedPrinting.set.toUpperCase()}:${
-          selectedPrinting.collector_number
-        }]`
-      : "";
-    const customInfo = card.customImageUrl ? " (Custom Image)" : "";
-
-    lines.push(`${card.quantity}x ${card.name}${setInfo}${customInfo}`);
+    if (card.customImageUrl) {
+      lines.push(`${card.quantity}x ${card.name} [CUSTOM]`);
+    } else {
+      const selectedPrinting = card.allPrintings[card.selectedIndex];
+      const setInfo = selectedPrinting
+        ? ` [${selectedPrinting.set.toUpperCase()}:${
+            selectedPrinting.collector_number
+          }]`
+        : "";
+      lines.push(`${card.quantity}x ${card.name}${setInfo}`);
+    }
   });
 
   return lines.join("\n");
