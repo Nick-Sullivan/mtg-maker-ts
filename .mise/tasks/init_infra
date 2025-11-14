@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+#MISE description="Initialise the system"
+#MISE alias="inf"
+set -e
+npm install
+cd terraform
+terraform init
+cd ..
+
