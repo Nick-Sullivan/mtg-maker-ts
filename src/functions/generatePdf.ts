@@ -1,6 +1,5 @@
 import { jsPDF } from "jspdf";
-import { CardWithMetadata, DeckWithMetadata } from "../types";
-import { getCardImageUrl } from "./fetchCardArt";
+import { DeckWithMetadata } from "../types";
 
 // Standard MTG card size in inches
 const CARD_WIDTH_INCHES = 2.5;
@@ -109,11 +108,25 @@ export const generatePdfWithImages = async (
     format: "a4",
   });
 
-  // Expand cards array based on quantity
-  const expandedCards: CardWithMetadata[] = [];
+  // Expand cards array based on quantity, and expand double-faced cards to individual faces
+  const expandedCards: { imageUrl: string; name: string }[] = [];
   deck.cards.forEach((card) => {
     for (let i = 0; i < card.quantity; i++) {
-      expandedCards.push(card);
+      if (card.isDoubleFaced && card.imageUrls.length > 1) {
+        // Add both faces as separate cards
+        card.imageUrls.forEach((url, faceIndex) => {
+          expandedCards.push({
+            imageUrl: url,
+            name: `${card.name} (Face ${faceIndex + 1})`,
+          });
+        });
+      } else {
+        // Add single-faced card
+        expandedCards.push({
+          imageUrl: card.imageUrls[0] || "",
+          name: card.name,
+        });
+      }
     }
   });
 
@@ -148,7 +161,7 @@ export const generatePdfWithImages = async (
         col++
       ) {
         const card = expandedCards[cardIndex];
-        const imageUrl = getCardImageUrl(card);
+        const imageUrl = card.imageUrl;
 
         const x = MARGIN_X + col * (CARD_WIDTH_MM + spacing);
         const y = MARGIN_Y + row * (CARD_HEIGHT_MM + spacing);

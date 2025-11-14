@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { getPrintingImageUrls } from "../functions/fetchCardArt";
 import { DeckWithMetadata } from "../types";
 
 export function useCardSelection(
@@ -23,9 +24,18 @@ export function useCardSelection(
       if (!prevDeck) return prevDeck;
 
       const updatedCards = [...prevDeck.cards];
+      const card = updatedCards[selectedCardIndex];
+
+      // Use getPrintingImageUrls helper for the new printing
+      const selectedPrinting = card.allPrintings[printingIndex];
+      const { imageUrls, isDoubleFaced } =
+        getPrintingImageUrls(selectedPrinting);
+
       updatedCards[selectedCardIndex] = {
-        ...updatedCards[selectedCardIndex],
+        ...card,
         selectedIndex: printingIndex,
+        imageUrls,
+        isDoubleFaced,
       };
 
       return {
@@ -42,10 +52,29 @@ export function useCardSelection(
       if (!prevDeck) return prevDeck;
 
       const updatedCards = [...prevDeck.cards];
-      updatedCards[selectedCardIndex] = {
-        ...updatedCards[selectedCardIndex],
-        customImageUrl: imageUrl || undefined,
-      };
+      const card = updatedCards[selectedCardIndex];
+
+      if (imageUrl) {
+        // Setting custom image
+        updatedCards[selectedCardIndex] = {
+          ...card,
+          customImageUrl: imageUrl,
+          imageUrls: [imageUrl],
+          isDoubleFaced: false,
+        };
+      } else {
+        // Clearing custom image - use getPrintingImageUrls for current printing
+        const selectedPrinting = card.allPrintings[card.selectedIndex];
+        const { imageUrls: newImageUrls, isDoubleFaced: newIsDoubleFaced } =
+          getPrintingImageUrls(selectedPrinting);
+
+        updatedCards[selectedCardIndex] = {
+          ...card,
+          customImageUrl: undefined,
+          imageUrls: newImageUrls,
+          isDoubleFaced: newIsDoubleFaced,
+        };
+      }
 
       return {
         ...prevDeck,

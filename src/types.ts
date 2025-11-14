@@ -15,7 +15,9 @@ export interface Deck {
 export interface CardWithMetadata extends Card {
   allPrintings: ScryfallCard[];
   selectedIndex: number;
-  customImageUrl?: string; // Add support for custom uploaded images
+  customImageUrl?: string;
+  imageUrls: string[];
+  isDoubleFaced: boolean;
 }
 
 export interface DeckWithMetadata extends Deck {

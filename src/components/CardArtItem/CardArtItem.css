@@ -4,12 +4,28 @@
   align-items: center;
   gap: 10px;
   position: relative;
+  width: 200px;
+}
+
+.card-art-item.double-faced {
+  width: 400px;
 }
 
 .card-image-container {
   position: relative;
   width: 100%;
   max-width: 200px;
+}
+
+.card-image-container.double-faced {
+  max-width: 400px;
+  display: flex;
+  gap: 0;
+}
+
+.card-image-container.double-faced .card-face {
+  width: 200px;
+  flex-shrink: 0;
 }
 
 .card-art-item img {
@@ -22,8 +38,38 @@
   border: 2px solid rgba(76, 175, 80, 0.2);
 }
 
-.card-art-item[style*="cursor: pointer"] img:hover {
+/* Remove inner borders and border-radius for double-faced cards */
+.card-image-container.double-faced .card-face:first-child img {
+  border-radius: 8px 0 0 8px;
+  border-right: none;
+}
+
+.card-image-container.double-faced .card-face:last-child img {
+  border-radius: 0 8px 8px 0;
+  border-left: none;
+}
+
+/* Individual image hover for single-faced cards */
+.card-art-item:not(.double-faced)[style*="cursor: pointer"] img:hover {
   transform: scale(1.05);
+  box-shadow: 
+    0 6px 12px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(76, 175, 80, 0.6);
+  border-color: rgba(76, 175, 80, 0.5);
+}
+
+/* Container hover for double-faced cards - scale the whole container */
+.card-art-item.double-faced[style*="cursor: pointer"]:hover .card-image-container {
+  transform: scale(1.05);
+}
+
+/* Prevent individual image scaling for double-faced cards */
+.card-art-item.double-faced[style*="cursor: pointer"] img {
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+/* Apply hover effects to both images when hovering the container */
+.card-art-item.double-faced[style*="cursor: pointer"]:hover img {
   box-shadow: 
     0 6px 12px rgba(0, 0, 0, 0.5),
     0 0 20px rgba(76, 175, 80, 0.6);
@@ -36,6 +82,7 @@
   color: #a8d5a8;
   font-weight: 500;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  width: 100%;
 }
 
 .card-placeholder {

@@ -1,4 +1,3 @@
-import { getCardImageUrl } from "../../functions/fetchCardArt";
 import { CardWithMetadata } from "../../types";
 import "./CardArtItem.css";
 
@@ -10,7 +9,6 @@ interface Params {
 }
 
 export function CardArtItem({ card, onClick, isLoading, isLoaded }: Params) {
-  const imageUrl = getCardImageUrl(card);
   if (isLoading) {
     return (
       <div className="card-art-item">
@@ -23,6 +21,7 @@ export function CardArtItem({ card, onClick, isLoading, isLoaded }: Params) {
       </div>
     );
   }
+
   if (!isLoaded) {
     return (
       <div className="card-art-item">
@@ -33,7 +32,8 @@ export function CardArtItem({ card, onClick, isLoading, isLoaded }: Params) {
       </div>
     );
   }
-  if (!imageUrl) {
+
+  if (card.imageUrls.length === 0) {
     return (
       <div className="card-art-item">
         <div className="card-placeholder">
@@ -46,14 +46,27 @@ export function CardArtItem({ card, onClick, isLoading, isLoaded }: Params) {
       </div>
     );
   }
+
   return (
     <div
-      className="card-art-item"
+      className={`card-art-item ${card.isDoubleFaced ? "double-faced" : ""}`}
       onClick={onClick}
       style={{ cursor: "pointer" }}
     >
-      <div className="card-image-container">
-        <img src={imageUrl} alt={card.name} title={card.name} />
+      <div
+        className={`card-image-container ${
+          card.isDoubleFaced ? "double-faced" : ""
+        }`}
+      >
+        {card.imageUrls.map((url, index) => (
+          <img
+            key={index}
+            src={url}
+            alt={`${card.name} face ${index + 1}`}
+            title={card.name}
+            className={card.isDoubleFaced ? "card-face" : ""}
+          />
+        ))}
       </div>
 
       <div className="card-label">

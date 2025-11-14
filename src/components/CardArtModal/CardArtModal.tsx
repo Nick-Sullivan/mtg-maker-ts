@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { getCardImageUrl } from "../../functions/fetchCardArt";
+import { getPrintingImageUrls } from "../../functions/fetchCardArt";
 import { CardWithMetadata } from "../../types";
 import { ImageCropper } from "../ImageCropper/ImageCropper";
 import "./CardArtModal.css";
@@ -18,7 +18,6 @@ export function CardArtModal({
   onUploadCustomImage,
 }: Params) {
   const currentPrinting = card.allPrintings[card.selectedIndex];
-  const imageUrl = getCardImageUrl(card);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [imageToCrop, setImageToCrop] = useState<string | null>(null);
@@ -127,7 +126,9 @@ export function CardArtModal({
                 ? "Custom image"
                 : `Showing ${card.selectedIndex + 1} of ${
                     card.allPrintings.length
-                  } printings`}
+                  } printings${
+                    card.isDoubleFaced ? " (Double-faced card)" : ""
+                  }`}
             </p>
           </div>
 
@@ -143,8 +144,21 @@ export function CardArtModal({
             )}
 
             <div className="modal-image-container">
-              {imageUrl ? (
-                <img src={imageUrl} alt={card.name} />
+              {card.imageUrls.length > 0 ? (
+                <div
+                  className={`modal-image-wrapper ${
+                    card.isDoubleFaced ? "double-faced" : ""
+                  }`}
+                >
+                  {card.imageUrls.map((url, index) => (
+                    <img
+                      key={index}
+                      src={url}
+                      alt={`${card.name} face ${index + 1}`}
+                      className={card.isDoubleFaced ? "card-face" : ""}
+                    />
+                  ))}
+                </div>
               ) : (
                 <div className="modal-no-image">No image available</div>
               )}
@@ -209,28 +223,42 @@ export function CardArtModal({
             <div className="modal-footer">
               <div className="modal-thumbnails">
                 {card.allPrintings.map((printing, index) => {
-                  const tempCard: CardWithMetadata = {
-                    ...card,
-                    selectedIndex: index,
-                  };
-                  const thumbUrl = getCardImageUrl(tempCard);
+                  const {
+                    imageUrls: thumbUrls,
+                    isDoubleFaced: isThumbDoubleFaced,
+                  } = getPrintingImageUrls(printing);
 
                   return (
                     <div
                       key={printing.id || index}
                       className={`modal-thumbnail ${
                         index === card.selectedIndex ? "active" : ""
-                      }`}
+                      } ${isThumbDoubleFaced ? "double-faced" : ""}`}
                       onClick={() => onSelectPrinting(index)}
                       title={`${
                         printing.set_name || printing.set.toUpperCase()
                       } #${printing.collector_number}`}
                     >
-                      {thumbUrl ? (
-                        <img
-                          src={thumbUrl}
-                          alt={`${printing.set} ${printing.collector_number}`}
-                        />
+                      {thumbUrls.length > 0 ? (
+                        isThumbDoubleFaced ? (
+                          <div className="thumbnail-double-wrapper">
+                            {thumbUrls.map((url, faceIndex) => (
+                              <img
+                                key={faceIndex}
+                                src={url}
+                                alt={`${printing.set} ${
+                                  printing.collector_number
+                                } face ${faceIndex + 1}`}
+                                className="thumbnail-face"
+                              />
+                            ))}
+                          </div>
+                        ) : (
+                          <img
+                            src={thumbUrls[0]}
+                            alt={`${printing.set} ${printing.collector_number}`}
+                          />
+                        )
                       ) : (
                         <div className="modal-thumbnail-placeholder">?</div>
                       )}

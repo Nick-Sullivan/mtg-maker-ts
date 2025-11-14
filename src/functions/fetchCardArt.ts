@@ -14,7 +14,6 @@ interface Params {
   onStartFetch: (index: number) => void;
   onFetched: (index: number, card: CardWithMetadata) => void;
 }
-
 export const fetchAllCardMetadata = async ({
   cards,
   onStartFetch,
@@ -41,10 +40,14 @@ export const fetchAllCardMetadata = async ({
         }
       }
 
+      const imageData = getCardImageUrls({ allPrintings, selectedIndex });
+
       cardWithMetadata = {
         ...card,
         allPrintings,
         selectedIndex,
+        imageUrls: imageData.imageUrls,
+        isDoubleFaced: imageData.isDoubleFaced,
       };
     } else {
       // Create a placeholder if no printings found
@@ -60,6 +63,8 @@ export const fetchAllCardMetadata = async ({
           },
         ],
         selectedIndex: 0,
+        imageUrls: [],
+        isDoubleFaced: false,
       };
     }
 
@@ -91,8 +96,8 @@ export const fetchAllPrintings = async (
       return [];
     }
     const data: ScryfallSearchResponse = await response.json();
-    const filteredData = data.data.filter(
-      (card) => card.name.toLowerCase() === cardName.toLowerCase()
+    const filteredData = data.data.filter((card) =>
+      card.name.toLowerCase().startsWith(cardName.toLowerCase())
     );
     return filteredData || [];
   } catch (error) {
@@ -101,29 +106,47 @@ export const fetchAllPrintings = async (
   }
 };
 
-export const getCardImageUrl = (card: CardWithMetadata): string | null => {
+const getCardImageUrls = (
+  card: Partial<CardWithMetadata>
+): { imageUrls: string[]; isDoubleFaced: boolean } => {
   // Prioritize custom image if uploaded
   if (card.customImageUrl) {
-    return card.customImageUrl;
+    return { imageUrls: [card.customImageUrl], isDoubleFaced: false };
   }
 
-  if (card.allPrintings.length === 0) return null;
-
-  const selectedPrinting = card.allPrintings[card.selectedIndex];
-  if (!selectedPrinting) return null;
-
-  // Handle double-faced cards
-  if (
-    selectedPrinting.card_faces &&
-    selectedPrinting.card_faces[0]?.image_uris
-  ) {
-    return selectedPrinting.card_faces[0].image_uris.normal;
+  if (!card.allPrintings || card.allPrintings.length === 0) {
+    return { imageUrls: [], isDoubleFaced: false };
   }
 
-  // Handle normal cards
-  if (selectedPrinting.image_uris) {
-    return selectedPrinting.image_uris.normal;
+  const selectedPrinting = card.allPrintings[card.selectedIndex || 0];
+  if (!selectedPrinting) {
+    return { imageUrls: [], isDoubleFaced: false };
   }
 
-  return null;
+  return getPrintingImageUrls(selectedPrinting);
+};
+
+export const getPrintingImageUrls = (
+  printing: ScryfallCard
+): { imageUrls: string[]; isDoubleFaced: boolean } => {
+  if (printing.card_faces && printing.card_faces.length > 0) {
+    const faces: string[] = [];
+    printing.card_faces.forEach((face) => {
+      if (face.image_uris?.normal) {
+        faces.push(face.image_uris.normal);
+      }
+    });
+    if (faces.length > 0) {
+      return { imageUrls: faces, isDoubleFaced: faces.length > 1 };
+    }
+  }
+
+  if (printing.image_uris?.normal) {
+    return {
+      imageUrls: [printing.image_uris.normal],
+      isDoubleFaced: false,
+    };
+  }
+
+  return { imageUrls: [], isDoubleFaced: false };
 };

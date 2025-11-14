@@ -89,14 +89,35 @@
   gap: 15px;
 }
 
-.modal-image-container img {
+.modal-image-wrapper {
+  display: flex;
+  gap: 0;
+  max-height: 60vh;
   max-width: 100%;
+}
+
+.modal-image-wrapper img {
   max-height: 60vh;
   border-radius: 8px;
   box-shadow: 
     0 4px 12px rgba(0, 0, 0, 0.5),
     0 0 20px rgba(46, 125, 50, 0.4);
   border: 2px solid rgba(76, 175, 80, 0.3);
+}
+
+.modal-image-wrapper.double-faced img {
+  max-width: 50%;
+}
+
+/* Remove inner borders and border-radius for double-faced cards in modal */
+.modal-image-wrapper.double-faced img:first-child {
+  border-radius: 8px 0 0 8px;
+  border-right: none;
+}
+
+.modal-image-wrapper.double-faced img:last-child {
+  border-radius: 0 8px 8px 0;
+  border-left: none;
 }
 
 .modal-no-image {
@@ -265,6 +286,28 @@
   justify-content: center;
   color: #a8d5a8;
   font-size: 1.5rem;
+}
+
+/* Double-faced thumbnail styling */
+.modal-thumbnail.double-faced {
+  width: 120px;
+}
+
+.thumbnail-double-wrapper {
+  display: flex;
+  gap: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.thumbnail-face {
+  width: 50%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbnail-double-wrapper .thumbnail-face:first-child {
+  border-right: 1px solid rgba(0, 0, 0, 0.5);
 }
 
 /* Scrollbar styling for thumbnails */

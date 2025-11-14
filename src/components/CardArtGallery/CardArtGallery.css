@@ -1,7 +1,8 @@
 .card-art-container {
   margin-top: 30px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 20px;
   padding: 20px 0;
+  justify-content: center;
 }

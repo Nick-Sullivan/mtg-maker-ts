@@ -52,6 +52,8 @@ export function useDeckManagement() {
         ...card,
         allPrintings: [],
         selectedIndex: 0,
+        imageUrls: [],
+        isDoubleFaced: false,
       };
     });
   };
