@@ -36,6 +36,7 @@ jobs:
         run: |
           mise install
           mise run init
+          mise run init_infra
 
       - name: Build
         run: mise run build
