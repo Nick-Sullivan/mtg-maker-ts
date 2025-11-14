@@ -9,4 +9,6 @@
 #  mise <taskname>    - Run a task
 
 [tools]
+awscli = "2.31"
 node = "23.8.0"
+terraform = "1.12"

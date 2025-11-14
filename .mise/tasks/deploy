@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+#MISE description="Deploy the build to the cloud"
+#MISE alias="deploy"
+set -e
+cd terraform
+terraform apply --auto-approve
+cd ..

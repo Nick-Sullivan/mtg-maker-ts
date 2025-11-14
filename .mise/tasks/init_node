@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-#MISE description="Install node dependencies"
-#MISE alias="in"
-set -e
-npm install
