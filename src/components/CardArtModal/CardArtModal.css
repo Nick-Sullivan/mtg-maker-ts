@@ -55,6 +55,7 @@
 .modal-header {
   padding: 20px 60px 10px 20px;
   border-bottom: 1px solid rgba(46, 125, 50, 0.3);
+  flex-shrink: 0;
 }
 
 .modal-header h2 {
@@ -73,43 +74,55 @@
 .modal-body {
   flex: 1;
   display: flex;
-  align-items: center;
+  align-items: stretch;  /* Changed from center */
   justify-content: center;
   padding: 20px;
   overflow: hidden;
   position: relative;
+  min-height: 0;
 }
 
 .modal-image-container {
-  max-width: 100%;
-  max-height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
+  width: 100%;
+  max-height: 100%;  /* Changed from height: 100% */
 }
 
 .modal-image-wrapper {
+  flex: 1;
   display: flex;
   gap: 0;
-  max-height: 60vh;
-  max-width: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;  /* Changed from 200px */
+  overflow: hidden;  /* Added */
 }
 
 .modal-image-wrapper img {
-  max-height: 60vh;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
   border-radius: 8px;
   box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.5),
+    0 8px 32px rgba(0, 0, 0, 0.6),
     0 0 20px rgba(46, 125, 50, 0.4);
   border: 2px solid rgba(76, 175, 80, 0.3);
+}
+
+.modal-image-wrapper.double-faced {
+  flex-direction: row;
 }
 
 .modal-image-wrapper.double-faced img {
   max-width: 50%;
 }
 
-/* Remove inner borders and border-radius for double-faced cards in modal */
 .modal-image-wrapper.double-faced img:first-child {
   border-radius: 8px 0 0 8px;
   border-right: none;
@@ -138,8 +151,8 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  flex-shrink: 0;
 }
-
 .modal-set-info {
   font-size: 1rem;
   color: #a8d5a8;
@@ -150,9 +163,8 @@
 }
 
 .modal-upload-section {
-  margin-top: 10px;
+  flex-shrink: 0;
 }
-
 .btn-upload {
   background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
   color: #e8f5e9;
@@ -238,6 +250,7 @@
   border-top: 1px solid rgba(46, 125, 50, 0.3);
   background: rgba(13, 31, 13, 0.6);
   border-radius: 0 0 12px 12px;
+  flex-shrink: 0;
 }
 
 .modal-thumbnails {
@@ -288,7 +301,6 @@
   font-size: 1.5rem;
 }
 
-/* Double-faced thumbnail styling */
 .modal-thumbnail.double-faced {
   width: 120px;
 }
@@ -310,7 +322,6 @@
   border-right: 1px solid rgba(0, 0, 0, 0.5);
 }
 
-/* Scrollbar styling for thumbnails */
 .modal-thumbnails::-webkit-scrollbar {
   height: 8px;
 }
@@ -327,4 +338,40 @@
 
 .modal-thumbnails::-webkit-scrollbar-thumb:hover {
   background: rgba(76, 175, 80, 0.8);
+}
+
+@media (max-width: 768px) {
+  .modal-header h2 {
+    font-size: 1.2rem;
+  }
+  
+  .modal-subtitle {
+    font-size: 0.8rem;
+  }
+
+  .modal-image-wrapper.double-faced {
+    flex-direction: column;
+  }
+
+  .modal-image-wrapper.double-faced img {
+    max-width: 100%;
+    max-height: 50%;
+  }
+
+  .modal-image-wrapper.double-faced img:first-child {
+    border-radius: 8px 8px 0 0;
+    border-right: 2px solid rgba(76, 175, 80, 0.3);
+    border-bottom: none;
+  }
+
+  .modal-image-wrapper.double-faced img:last-child {
+    border-radius: 0 0 8px 8px;
+    border-left: 2px solid rgba(76, 175, 80, 0.3);
+    border-top: none;
+  }
+  
+  .btn-upload {
+    font-size: 0.85rem;
+    padding: 8px 16px;
+  }
 }
