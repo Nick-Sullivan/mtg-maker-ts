@@ -136,8 +136,10 @@ button:disabled {
   flex-shrink: 0;
 }
 
-/* Responsive layout for smaller screens */
 @media (max-width: 768px) {
+  h1 {
+    font-size: 1.6rem;
+  }
   .input-and-buttons-container {
     flex-direction: column;
   }
@@ -154,5 +156,11 @@ button:disabled {
 
   .button-container button {
     flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.4rem;
   }
 }
