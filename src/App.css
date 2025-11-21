@@ -128,23 +128,31 @@ button:disabled {
   margin-bottom: 0;
 }
 
-
-.input-and-buttons-container {
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
-  margin-bottom: 20px;
-}
-
-.input-and-buttons-container .input-section {
-  flex: 1;
-  margin-bottom: 0;
-}
-
 .button-container {
   display: flex;
   flex-direction: column;
   gap: 10px;
   margin-top: 0;
   flex-shrink: 0;
+}
+
+/* Responsive layout for smaller screens */
+@media (max-width: 768px) {
+  .input-and-buttons-container {
+    flex-direction: column;
+  }
+
+  .input-and-buttons-container .input-section {
+    width: 100%;
+  }
+
+  .button-container {
+    flex-direction: row;
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .button-container button {
+    flex: 1;
+  }
 }
