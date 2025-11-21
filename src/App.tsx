@@ -71,7 +71,7 @@ export function App() {
   return (
     <div className="container">
       <div className="header">
-        <h1>Magic The Gathering PDF Maker</h1>
+        <h1>Magic The Gathering Proxy</h1>
       </div>
 
       <div className="input-and-buttons-container">
@@ -90,7 +90,7 @@ export function App() {
             onClick={handleShowPdfSettings}
             disabled={isGeneratingPdf || !artLoadingComplete}
           >
-            {isGeneratingPdf ? "Generating..." : "📄 Generate PDF"}
+            {isGeneratingPdf ? "Generating..." : "Generate PDF"}
           </ActionButton>
         </div>
       </div>
