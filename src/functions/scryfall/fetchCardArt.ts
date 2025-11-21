@@ -3,11 +3,9 @@ import {
   CardWithMetadata,
   ScryfallCard,
   ScryfallSearchResponse,
-} from "../types";
-import { sleep } from "./sleep";
-
-const SCRYFALL_API_BASE = "https://api.scryfall.com";
-const DELAY_BETWEEN_REQUESTS = 100; // Scryfall requests 50-100ms between requests
+} from "../../types";
+import { sleep } from "../sleep";
+import { DELAY_BETWEEN_REQUESTS, SCRYFALL_API_BASE } from "./constants";
 
 interface Params {
   cards: Card[];
@@ -109,7 +107,13 @@ export const fetchAllPrintings = async (
 const getCardImageUrls = (
   card: Partial<CardWithMetadata>
 ): { imageUrls: string[]; isDoubleFaced: boolean } => {
-  // Prioritize custom image if uploaded
+  if (card.customImageUrls && card.customImageUrls.length > 0) {
+    return {
+      imageUrls: card.customImageUrls,
+      isDoubleFaced: card.customImageUrls.length > 1,
+    };
+  }
+
   if (card.customImageUrl) {
     return { imageUrls: [card.customImageUrl], isDoubleFaced: false };
   }

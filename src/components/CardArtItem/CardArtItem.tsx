@@ -35,10 +35,14 @@ export function CardArtItem({ card, onClick, isLoading, isLoaded }: Params) {
 
   if (card.imageUrls.length === 0) {
     return (
-      <div className="card-art-item">
+      <div
+        className="card-art-item"
+        onClick={onClick}
+        style={{ cursor: "pointer" }}
+      >
         <div className="card-placeholder">
           {card.quantity}x {card.name}
-          {"\n"}(No image found)
+          {"\n"}Click for options
         </div>
         <div className="card-label">
           {card.quantity}x {card.name}

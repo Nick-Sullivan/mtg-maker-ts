@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getPrintingImageUrls } from "../functions/fetchCardArt";
+import { getPrintingImageUrls } from "../functions/scryfall/fetchCardArt";
 import { DeckWithMetadata } from "../types";
 
 export function useCardSelection(
@@ -45,7 +45,7 @@ export function useCardSelection(
     });
   };
 
-  const handleUploadCustomImage = (imageUrl: string) => {
+  const handleUploadCustomImage = (imageUrl: string, faceIndex?: number) => {
     if (!currentDeck || selectedCardIndex === null) return;
 
     setCurrentDeck((prevDeck) => {
@@ -56,12 +56,31 @@ export function useCardSelection(
 
       if (imageUrl) {
         // Setting custom image
-        updatedCards[selectedCardIndex] = {
-          ...card,
-          customImageUrl: imageUrl,
-          imageUrls: [imageUrl],
-          isDoubleFaced: false,
-        };
+        if (card.isDoubleFaced && faceIndex !== undefined) {
+          // Handle double-faced card custom images
+          const currentCustomUrls = card.customImageUrls || [
+            card.imageUrls[0] || "",
+            card.imageUrls[1] || "",
+          ];
+          const newCustomUrls = [...currentCustomUrls];
+          newCustomUrls[faceIndex] = imageUrl;
+
+          updatedCards[selectedCardIndex] = {
+            ...card,
+            customImageUrls: newCustomUrls,
+            imageUrls: newCustomUrls,
+            customImageUrl: undefined,
+          };
+        } else {
+          // Handle single-faced card custom image
+          updatedCards[selectedCardIndex] = {
+            ...card,
+            customImageUrl: imageUrl,
+            imageUrls: [imageUrl],
+            isDoubleFaced: false,
+            customImageUrls: undefined,
+          };
+        }
       } else {
         // Clearing custom image - use getPrintingImageUrls for current printing
         const selectedPrinting = card.allPrintings[card.selectedIndex];
@@ -71,6 +90,7 @@ export function useCardSelection(
         updatedCards[selectedCardIndex] = {
           ...card,
           customImageUrl: undefined,
+          customImageUrls: undefined,
           imageUrls: newImageUrls,
           isDoubleFaced: newIsDoubleFaced,
         };

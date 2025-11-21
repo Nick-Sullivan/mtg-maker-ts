@@ -19,7 +19,7 @@
   border-radius: 8px;
   font-family: 'Courier New', monospace;
   font-size: 14px;
-  resize: vertical;
+  resize: none;
   transition: border-color 0.3s, box-shadow 0.3s;
   background: rgba(13, 31, 13, 0.4);
   color: #e8f5e9;

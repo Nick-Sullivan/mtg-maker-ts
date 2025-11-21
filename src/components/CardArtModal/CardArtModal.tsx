@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { getPrintingImageUrls } from "../../functions/fetchCardArt";
+import { getPrintingImageUrls } from "../../functions/scryfall/fetchCardArt";
 import { CardWithMetadata } from "../../types";
 import { ImageCropper } from "../ImageCropper/ImageCropper";
 import "./CardArtModal.css";
@@ -8,7 +8,7 @@ interface Params {
   card: CardWithMetadata;
   onClose: () => void;
   onSelectPrinting: (index: number) => void;
-  onUploadCustomImage: (imageUrl: string) => void;
+  onUploadCustomImage: (imageUrl: string, faceIndex?: number) => void;
 }
 
 export function CardArtModal({
@@ -18,9 +18,21 @@ export function CardArtModal({
   onUploadCustomImage,
 }: Params) {
   const currentPrinting = card.allPrintings[card.selectedIndex];
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputFrontRef = useRef<HTMLInputElement>(null);
+  const fileInputBackRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [imageToCrop, setImageToCrop] = useState<string | null>(null);
+  const [uploadingFaceIndex, setUploadingFaceIndex] = useState<
+    number | undefined
+  >(undefined);
+
+  // Check if this card originally was double-faced (from Scryfall data)
+  const isOriginallyDoubleFaced =
+    currentPrinting?.card_faces && currentPrinting.card_faces.length > 1;
+
+  // Check if we should show custom image controls
+  const hasCustomImageSingleFaced =
+    !isOriginallyDoubleFaced && !!card.customImageUrl;
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -60,8 +72,15 @@ export function CardArtModal({
     }
   };
 
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
+  const handleUploadClick = (faceIndex?: number) => {
+    setUploadingFaceIndex(faceIndex);
+    if (faceIndex === 0) {
+      fileInputFrontRef.current?.click();
+    } else if (faceIndex === 1) {
+      fileInputBackRef.current?.click();
+    } else {
+      fileInputFrontRef.current?.click();
+    }
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,12 +116,14 @@ export function CardArtModal({
   };
 
   const handleCropComplete = (croppedImageUrl: string) => {
-    onUploadCustomImage(croppedImageUrl);
+    onUploadCustomImage(croppedImageUrl, uploadingFaceIndex);
     setImageToCrop(null);
+    setUploadingFaceIndex(undefined);
   };
 
   const handleCropCancel = () => {
     setImageToCrop(null);
+    setUploadingFaceIndex(undefined);
   };
 
   const handleClearCustomImage = () => {
@@ -122,18 +143,18 @@ export function CardArtModal({
               {card.quantity}x {card.name}
             </h2>
             <p className="modal-subtitle">
-              {card.customImageUrl
+              {hasCustomImageSingleFaced
                 ? "Custom image"
                 : `Showing ${card.selectedIndex + 1} of ${
                     card.allPrintings.length
                   } printings${
-                    card.isDoubleFaced ? " (Double-faced card)" : ""
+                    isOriginallyDoubleFaced ? " (Double-faced card)" : ""
                   }`}
             </p>
           </div>
 
           <div className="modal-body">
-            {!card.customImageUrl && card.allPrintings.length > 1 && (
+            {!hasCustomImageSingleFaced && card.allPrintings.length > 1 && (
               <button
                 className="modal-nav-btn modal-nav-left"
                 onClick={handlePrevious}
@@ -164,7 +185,7 @@ export function CardArtModal({
               )}
 
               <div className="modal-card-info">
-                {card.customImageUrl ? (
+                {hasCustomImageSingleFaced ? (
                   <div className="modal-set-info">
                     <strong>Custom Image</strong>
                     <button
@@ -191,24 +212,72 @@ export function CardArtModal({
               </div>
 
               <div className="modal-upload-section">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  style={{ display: "none" }}
-                />
-                <button
-                  className="btn-upload"
-                  onClick={handleUploadClick}
-                  disabled={isUploading}
-                >
-                  {isUploading ? "Uploading..." : "📤 Upload Custom Image"}
-                </button>
+                {isOriginallyDoubleFaced ? (
+                  // Two upload buttons for double-faced cards (always show for double-faced)
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      flexWrap: "wrap",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <input
+                      ref={fileInputFrontRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      style={{ display: "none" }}
+                    />
+                    <input
+                      ref={fileInputBackRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      style={{ display: "none" }}
+                    />
+                    <button
+                      className="btn-upload"
+                      onClick={() => handleUploadClick(0)}
+                      disabled={isUploading}
+                    >
+                      {isUploading && uploadingFaceIndex === 0
+                        ? "Uploading..."
+                        : "📤 Upload Front Face"}
+                    </button>
+                    <button
+                      className="btn-upload"
+                      onClick={() => handleUploadClick(1)}
+                      disabled={isUploading}
+                    >
+                      {isUploading && uploadingFaceIndex === 1
+                        ? "Uploading..."
+                        : "📤 Upload Back Face"}
+                    </button>
+                  </div>
+                ) : (
+                  // Single upload button for single-faced cards
+                  <>
+                    <input
+                      ref={fileInputFrontRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      style={{ display: "none" }}
+                    />
+                    <button
+                      className="btn-upload"
+                      onClick={() => handleUploadClick()}
+                      disabled={isUploading}
+                    >
+                      {isUploading ? "Uploading..." : "📤 Upload Custom Image"}
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 
-            {!card.customImageUrl && card.allPrintings.length > 1 && (
+            {!hasCustomImageSingleFaced && card.allPrintings.length > 1 && (
               <button
                 className="modal-nav-btn modal-nav-right"
                 onClick={handleNext}
@@ -219,7 +288,7 @@ export function CardArtModal({
             )}
           </div>
 
-          {!card.customImageUrl && (
+          {!hasCustomImageSingleFaced && (
             <div className="modal-footer">
               <div className="modal-thumbnails">
                 {card.allPrintings.map((printing, index) => {

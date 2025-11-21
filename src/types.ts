@@ -16,10 +16,11 @@ export interface CardWithMetadata extends Card {
   allPrintings: ScryfallCard[];
   selectedIndex: number;
   customImageUrl?: string;
+  customImageUrls?: string[];
   imageUrls: string[];
   isDoubleFaced: boolean;
+  suggestedSimilarNames?: string[];
 }
-
 export interface DeckWithMetadata extends Deck {
   cards: CardWithMetadata[];
 }
