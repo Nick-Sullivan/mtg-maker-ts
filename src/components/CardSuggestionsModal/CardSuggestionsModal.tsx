@@ -7,14 +7,12 @@ interface Params {
   card: CardWithMetadata;
   onClose: () => void;
   onSelectSuggestion: (cardName: string) => void;
-  onUploadCustomImage: (imageUrl: string) => void;
 }
 
 export function CardSuggestionsModal({
   card,
   onClose,
   onSelectSuggestion,
-  onUploadCustomImage,
 }: Params) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);

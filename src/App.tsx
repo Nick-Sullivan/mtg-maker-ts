@@ -111,7 +111,6 @@ export function App() {
             card={selectedCard}
             onClose={handleCloseModal}
             onSelectSuggestion={handleSelectSuggestion}
-            onUploadCustomImage={handleUploadCustomImage}
           />
         ) : (
           <CardArtModal
