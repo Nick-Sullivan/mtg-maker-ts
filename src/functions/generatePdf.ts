@@ -191,11 +191,6 @@ export const generatePdfWithImages = async (
           drawPlaceholder(doc, x, y, card.name);
         }
 
-        // Draw cut lines (very light gray)
-        doc.setDrawColor(200, 200, 200);
-        doc.setLineWidth(0.1);
-        doc.rect(x, y, CARD_WIDTH_MM, CARD_HEIGHT_MM);
-
         cardIndex++;
       }
     }
