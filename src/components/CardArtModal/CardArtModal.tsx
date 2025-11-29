@@ -142,15 +142,70 @@ export function CardArtModal({
             <h2>
               {card.quantity}x {card.name}
             </h2>
-            <p className="modal-subtitle">
-              {hasCustomImageSingleFaced
-                ? "Custom image"
-                : `Showing ${card.selectedIndex + 1} of ${
-                    card.allPrintings.length
-                  } printings${
-                    isOriginallyDoubleFaced ? " (Double-faced card)" : ""
-                  }`}
-            </p>
+            <div className="modal-upload-section">
+              {isOriginallyDoubleFaced ? (
+                // Two upload buttons for double-faced cards (always show for double-faced)
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "10px",
+                    flexWrap: "wrap",
+                    justifyContent: "center",
+                  }}
+                >
+                  <input
+                    ref={fileInputFrontRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    style={{ display: "none" }}
+                  />
+                  <input
+                    ref={fileInputBackRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    style={{ display: "none" }}
+                  />
+                  <button
+                    className="btn-upload"
+                    onClick={() => handleUploadClick(0)}
+                    disabled={isUploading}
+                  >
+                    {isUploading && uploadingFaceIndex === 0
+                      ? "Uploading..."
+                      : "📤 Upload Front Face"}
+                  </button>
+                  <button
+                    className="btn-upload"
+                    onClick={() => handleUploadClick(1)}
+                    disabled={isUploading}
+                  >
+                    {isUploading && uploadingFaceIndex === 1
+                      ? "Uploading..."
+                      : "📤 Upload Back Face"}
+                  </button>
+                </div>
+              ) : (
+                // Single upload button for single-faced cards
+                <>
+                  <input
+                    ref={fileInputFrontRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    style={{ display: "none" }}
+                  />
+                  <button
+                    className="btn-upload"
+                    onClick={() => handleUploadClick()}
+                    disabled={isUploading}
+                  >
+                    {isUploading ? "Uploading..." : "📤 Upload Custom Image"}
+                  </button>
+                </>
+              )}
+            </div>
           </div>
 
           <div className="modal-body">
@@ -200,79 +255,10 @@ export function CardArtModal({
                   <div className="modal-set-info">
                     <strong>
                       {currentPrinting.set_name ||
-                        currentPrinting.set.toUpperCase()}
+                        currentPrinting.set.toUpperCase()}{" "}
+                      #{currentPrinting.collector_number}
                     </strong>
-                    <span>
-                      {" "}
-                      ({currentPrinting.set.toUpperCase()} #
-                      {currentPrinting.collector_number})
-                    </span>
                   </div>
-                )}
-              </div>
-
-              <div className="modal-upload-section">
-                {isOriginallyDoubleFaced ? (
-                  // Two upload buttons for double-faced cards (always show for double-faced)
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "10px",
-                      flexWrap: "wrap",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <input
-                      ref={fileInputFrontRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      style={{ display: "none" }}
-                    />
-                    <input
-                      ref={fileInputBackRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      style={{ display: "none" }}
-                    />
-                    <button
-                      className="btn-upload"
-                      onClick={() => handleUploadClick(0)}
-                      disabled={isUploading}
-                    >
-                      {isUploading && uploadingFaceIndex === 0
-                        ? "Uploading..."
-                        : "📤 Upload Front Face"}
-                    </button>
-                    <button
-                      className="btn-upload"
-                      onClick={() => handleUploadClick(1)}
-                      disabled={isUploading}
-                    >
-                      {isUploading && uploadingFaceIndex === 1
-                        ? "Uploading..."
-                        : "📤 Upload Back Face"}
-                    </button>
-                  </div>
-                ) : (
-                  // Single upload button for single-faced cards
-                  <>
-                    <input
-                      ref={fileInputFrontRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      style={{ display: "none" }}
-                    />
-                    <button
-                      className="btn-upload"
-                      onClick={() => handleUploadClick()}
-                      disabled={isUploading}
-                    >
-                      {isUploading ? "Uploading..." : "📤 Upload Custom Image"}
-                    </button>
-                  </>
                 )}
               </div>
             </div>

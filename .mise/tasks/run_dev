@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 #MISE description="Runs in dev mode"
-#MISE alias="rd"
+#MISE alias="dev"
 set -e
 npm run dev
