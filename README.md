@@ -2,6 +2,6 @@
 
 ```sh
 mise install
-mise run init_node
-mise run run_dev
+mise run init
+mise run dev
 ```

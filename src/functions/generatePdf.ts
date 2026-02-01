@@ -18,8 +18,9 @@ const CARDS_PER_ROW = 3;
 const CARDS_PER_COL = 3;
 const CARDS_PER_PAGE = CARDS_PER_ROW * CARDS_PER_COL;
 
-// CORS proxy for Scryfall images
-const CORS_PROXY = "https://corsproxy.io/?";
+// AWS Lambda CORS proxy
+const CORS_PROXY_URL =
+  "https://c2hwmdldllsw5q7vvqtwq7avey0kimtt.lambda-url.ap-southeast-2.on.aws/";
 
 // Cache for base64 images
 const imageCache = new Map<string, string>();
@@ -37,45 +38,35 @@ async function imageToBase64(url: string): Promise<string> {
     return url;
   }
 
-  // Load image through CORS proxy to avoid tainted canvas
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
+  // Use fetch + blob for ALL images (consistent approach)
+  try {
+    // Proxy Scryfall URLs through Lambda
+    const fetchUrl = url.includes("scryfall.io")
+      ? `${CORS_PROXY_URL}?url=${encodeURIComponent(url)}`
+      : url;
 
-    img.onload = () => {
-      try {
-        const canvas = document.createElement("canvas");
-        canvas.width = img.naturalWidth;
-        canvas.height = img.naturalHeight;
+    const response = await fetch(fetchUrl);
 
-        const ctx = canvas.getContext("2d");
-        if (!ctx) {
-          reject(new Error("Failed to get canvas context"));
-          return;
-        }
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
 
-        ctx.drawImage(img, 0, 0);
-        const dataUrl = canvas.toDataURL("image/jpeg", 0.95);
+    const blob = await response.blob();
 
-        // Cache the result
+    // Convert blob directly to base64 data URL
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const dataUrl = reader.result as string;
         imageCache.set(url, dataUrl);
         resolve(dataUrl);
-      } catch (error) {
-        reject(new Error(`Failed to convert image to base64: ${error}`));
-      }
-    };
-
-    img.onerror = () => {
-      reject(new Error(`Failed to load image: ${url}`));
-    };
-
-    // Use CORS proxy for Scryfall images
-    if (url.includes("scryfall.io")) {
-      img.src = CORS_PROXY + encodeURIComponent(url);
-    } else {
-      img.src = url;
-    }
-  });
+      };
+      reader.onerror = () => reject(new Error("FileReader failed"));
+      reader.readAsDataURL(blob);
+    });
+  } catch (error) {
+    throw new Error(`Failed to load image: ${error}`);
+  }
 }
 
 // Helper function to detect image format from data URL
@@ -93,7 +84,7 @@ function getImageFormat(imageUrl: string): string {
 
 export const generatePdfWithImages = async (
   deck: DeckWithMetadata,
-  spacing: number = 0.2
+  spacing: number = 0.2,
 ): Promise<void> => {
   if (deck.numCards === 0) {
     throw new Error("No cards to generate PDF");
@@ -129,6 +120,18 @@ export const generatePdfWithImages = async (
       }
     }
   });
+
+  // PRE-LOAD all unique images in parallel for speed
+  const uniqueUrls = [
+    ...new Set(expandedCards.map((c) => c.imageUrl).filter(Boolean)),
+  ];
+  await Promise.all(
+    uniqueUrls.map((url) =>
+      imageToBase64(url).catch((err) => {
+        console.error(`Failed to preload ${url}:`, err);
+      }),
+    ),
+  );
 
   // Calculate total width/height including spacing
   const TOTAL_CARDS_WIDTH =
@@ -168,7 +171,7 @@ export const generatePdfWithImages = async (
 
         if (imageUrl) {
           try {
-            // Convert image to base64 (cached if already loaded)
+            // Image is already cached from preload
             const base64Image = await imageToBase64(imageUrl);
             const imageFormat = getImageFormat(base64Image);
 
@@ -179,7 +182,7 @@ export const generatePdfWithImages = async (
               x,
               y,
               CARD_WIDTH_MM,
-              CARD_HEIGHT_MM
+              CARD_HEIGHT_MM,
             );
           } catch (error) {
             console.error(`Failed to add image for ${card.name}:`, error);
@@ -218,7 +221,7 @@ function drawPlaceholder(
   doc: jsPDF,
   x: number,
   y: number,
-  cardName: string
+  cardName: string,
 ): void {
   // Draw gray background
   doc.setFillColor(240, 240, 240);
