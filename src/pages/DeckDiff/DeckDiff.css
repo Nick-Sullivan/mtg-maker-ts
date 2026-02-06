@@ -1,12 +1,12 @@
 .deck-diff-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 20px 20px 40px;
 }
 
 .deck-diff-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .deck-diff-header h1 {
