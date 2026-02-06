@@ -1,16 +1,16 @@
-import "./App.css";
-import { ActionButton } from "./components/ActionButton/ActionButton";
-import { CardArtGallery } from "./components/CardArtGallery/CardArtGallery";
-import { CardArtModal } from "./components/CardArtModal/CardArtModal";
-import { CardSuggestionsModal } from "./components/CardSuggestionsModal/CardSuggestionsModal";
-import { DeckInput } from "./components/DeckInput/DeckInput";
-import { PdfSettingsModal } from "./components/PdfSettingsModal/PdfSettingsModal";
-import { StatusDisplay } from "./components/StatusDisplay/StatusDisplay";
-import { useCardSelection } from "./hooks/useCardSelection";
-import { useDeckManagement } from "./hooks/useDeckManagement";
-import { usePdfGeneration } from "./hooks/usePdfGeneration";
+import { ActionButton } from "../../components/ActionButton/ActionButton";
+import { CardArtGallery } from "../../components/CardArtGallery/CardArtGallery";
+import { CardArtModal } from "../../components/CardArtModal/CardArtModal";
+import { CardSuggestionsModal } from "../../components/CardSuggestionsModal/CardSuggestionsModal";
+import { DeckInput } from "../../components/DeckInput/DeckInput";
+import { PdfSettingsModal } from "../../components/PdfSettingsModal/PdfSettingsModal";
+import { StatusDisplay } from "../../components/StatusDisplay/StatusDisplay";
+import { useCardSelection } from "../../hooks/useCardSelection";
+import { useDeckManagement } from "../../hooks/useDeckManagement";
+import { usePdfGeneration } from "../../hooks/usePdfGeneration";
+import "./ProxyMaker.css";
 
-export function App() {
+export function ProxyMaker() {
   const {
     deckText,
     setDeckText,
