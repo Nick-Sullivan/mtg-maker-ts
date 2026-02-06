@@ -1,15 +1,15 @@
-.deck-diff-container {
+.compare-decks-container {
   max-width: 1400px;
   margin: 0 auto;
   padding: 20px 20px 40px;
 }
 
-.deck-diff-header {
+.compare-decks-header {
   text-align: center;
   margin-bottom: 20px;
 }
 
-.deck-diff-header h1 {
+.compare-decks-header h1 {
   color: #7dff7d;
   font-size: 2.5rem;
   margin-bottom: 10px;
@@ -20,7 +20,7 @@
   letter-spacing: 1px;
 }
 
-.deck-diff-inputs {
+.compare-decks-inputs {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
@@ -66,7 +66,7 @@
   box-shadow: 0 0 12px rgba(76, 175, 80, 0.4);
 }
 
-.deck-diff-results {
+.compare-decks-results {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 15px;
@@ -191,21 +191,24 @@
 }
 
 .btn-copy-section {
-  background: rgba(46, 125, 50, 0.4);
-  color: #e8f5e9;
-  padding: 4px 10px;
-  font-size: 0.9rem;
+  background: transparent;
+  color: #a8d5a8;
+  padding: 4px;
+  font-size: 1rem;
   border-radius: 6px;
-  border: 2px solid rgba(76, 175, 80, 0.3);
+  border: none;
   cursor: pointer;
   transition: all 0.2s;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-copy-section:hover {
-  background: rgba(46, 125, 50, 0.6);
-  border-color: rgba(76, 175, 80, 0.5);
-  transform: scale(1.05);
+  background: rgba(46, 125, 50, 0.3);
+  color: #7dff7d;
+  transform: scale(1.1);
 }
 
 .btn-copy-section:active {
@@ -213,15 +216,15 @@
 }
 
 @media (max-width: 768px) {
-  .deck-diff-inputs {
+  .compare-decks-inputs {
     grid-template-columns: 1fr;
   }
 
-  .deck-diff-header h1 {
+  .compare-decks-header h1 {
     font-size: 1.8rem;
   }
 
-  .deck-diff-results {
+  .compare-decks-results {
     grid-template-columns: 1fr;
   }
 }

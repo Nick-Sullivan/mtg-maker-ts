@@ -1,17 +1,18 @@
+import { Copy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { parseDeck } from "../../functions/parseDeck";
 import { DELAY_BETWEEN_REQUESTS } from "../../functions/scryfall/constants";
 import { fetchCardImageUrl } from "../../functions/scryfall/fetchCardArt";
 import { sleep } from "../../functions/sleep";
 import { Card } from "../../types";
-import "./DeckDiff.css";
+import "./CompareDecks.css";
 
 interface CardChange {
   name: string;
   quantity: number;
 }
 
-export function DeckDiff() {
+export function CompareDecks() {
   const [oldDeckText, setOldDeckText] = useState("");
   const [newDeckText, setNewDeckText] = useState("");
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
@@ -135,34 +136,20 @@ export function DeckDiff() {
     return () => clearTimeout(timeoutId);
   }, [comparison, isNarrowLayout]);
 
-  const formatSection = (
-    title: string,
-    cards: CardChange[],
-    type: "added" | "removed" | "unchanged",
-  ) => {
+  const formatSection = (cards: CardChange[]) => {
     if (cards.length === 0) return "";
 
-    const lines = [`\n${title}\n${"=".repeat(title.length)}`];
+    const lines: string[] = [];
 
     cards.forEach((card) => {
-      if (type === "added") {
-        lines.push(`+${card.quantity}x ${card.name}`);
-      } else if (type === "removed") {
-        lines.push(`-${card.quantity}x ${card.name}`);
-      } else {
-        lines.push(`${card.quantity}x ${card.name}`);
-      }
+      lines.push(`${card.quantity}x ${card.name}`);
     });
 
     return lines.join("\n");
   };
 
-  const copySection = async (
-    cards: CardChange[],
-    type: "added" | "removed" | "unchanged",
-    title: string,
-  ) => {
-    const text = formatSection(title, cards, type);
+  const copySection = async (cards: CardChange[]) => {
+    const text = formatSection(cards);
     try {
       await navigator.clipboard.writeText(text);
     } catch (err) {
@@ -188,14 +175,14 @@ export function DeckDiff() {
   };
 
   return (
-    <div className="deck-diff-container" onMouseMove={handleMouseMove}>
-      <div className="deck-diff-header">
-        <h1>Deck Difference</h1>
+    <div className="compare-decks-container" onMouseMove={handleMouseMove}>
+      <div className="compare-decks-header">
+        <h1>Compare Decks</h1>
       </div>
 
-      <div className="deck-diff-inputs">
+      <div className="compare-decks-inputs">
         <div className="deck-input-section">
-          <label>Old Decklist</label>
+          <label>Old Deck</label>
           <textarea
             value={oldDeckText}
             onChange={(e) => setOldDeckText(e.target.value)}
@@ -206,7 +193,7 @@ export function DeckDiff() {
         </div>
 
         <div className="deck-input-section">
-          <label>New Decklist</label>
+          <label>New Deck</label>
           <textarea
             value={newDeckText}
             onChange={(e) => setNewDeckText(e.target.value)}
@@ -217,7 +204,7 @@ export function DeckDiff() {
         </div>
       </div>
 
-      <div className="deck-diff-results">
+      <div className="compare-decks-results">
         {comparison.added.length > 0 && (
           <div className="diff-section added">
             <div className="diff-section-header">
@@ -227,11 +214,11 @@ export function DeckDiff() {
                 cards)
               </h2>
               <button
-                onClick={() => copySection(comparison.added, "added", "ADDED")}
+                onClick={() => copySection(comparison.added)}
                 className="btn-copy-section"
                 title="Copy added cards"
               >
-                📋
+                <Copy size={16} />
               </button>
             </div>
             <ul>
@@ -260,13 +247,11 @@ export function DeckDiff() {
                 cards)
               </h2>
               <button
-                onClick={() =>
-                  copySection(comparison.removed, "removed", "REMOVED")
-                }
+                onClick={() => copySection(comparison.removed)}
                 className="btn-copy-section"
                 title="Copy removed cards"
               >
-                📋
+                <Copy size={16} />
               </button>
             </div>
             <ul>
@@ -295,13 +280,11 @@ export function DeckDiff() {
                 cards)
               </h2>
               <button
-                onClick={() =>
-                  copySection(comparison.unchanged, "unchanged", "UNCHANGED")
-                }
+                onClick={() => copySection(comparison.unchanged)}
                 className="btn-copy-section"
                 title="Copy unchanged cards"
               >
-                📋
+                <Copy size={16} />
               </button>
             </div>
             <ul>

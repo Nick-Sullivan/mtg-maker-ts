@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { BurgerMenu } from "./components/BurgerMenu/BurgerMenu";
-import { DeckDiff } from "./pages/DeckDiff/DeckDiff";
+import { CompareDecks } from "./pages/CompareDecks/CompareDecks";
 import { ProxyMaker } from "./pages/ProxyMaker/ProxyMaker";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -11,7 +11,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <BurgerMenu />
       <Routes>
         <Route path="/" element={<ProxyMaker />} />
-        <Route path="/deck-diff" element={<DeckDiff />} />
+        <Route path="/compare-decks" element={<CompareDecks />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

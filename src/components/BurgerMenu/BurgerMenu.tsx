@@ -44,12 +44,12 @@ export function BurgerMenu() {
           </li>
           <li>
             <Link
-              to="/deck-diff"
-              className={location.pathname === "/deck-diff" ? "active" : ""}
+              to="/compare-decks"
+              className={location.pathname === "/compare-decks" ? "active" : ""}
               onClick={closeMenu}
             >
               <GitCompare className="menu-icon" size={20} />
-              Deck Difference
+              Compare Decks
             </Link>
           </li>
         </ul>
