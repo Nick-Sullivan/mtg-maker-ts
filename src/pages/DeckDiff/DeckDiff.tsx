@@ -17,6 +17,23 @@ export function DeckDiff() {
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const [cardImages, setCardImages] = useState<Map<string, string>>(new Map());
   const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
+  const [isNarrowLayout, setIsNarrowLayout] = useState(false);
+
+  useEffect(() => {
+    const checkLayout = () => {
+      // Check if the media query that stacks the inputs is active
+      const mediaQuery = window.matchMedia("(max-width: 768px)");
+      setIsNarrowLayout(mediaQuery.matches);
+    };
+
+    checkLayout();
+
+    const mediaQuery = window.matchMedia("(max-width: 768px)");
+    const handler = (e: MediaQueryListEvent) => setIsNarrowLayout(e.matches);
+    mediaQuery.addEventListener("change", handler);
+
+    return () => mediaQuery.removeEventListener("change", handler);
+  }, []);
 
   const comparison = useMemo(() => {
     const oldDeck = parseDeck(oldDeckText);
@@ -71,37 +88,52 @@ export function DeckDiff() {
     return { added, removed, unchanged };
   }, [oldDeckText, newDeckText]);
 
-  // Preload all card images when comparison changes
   useEffect(() => {
-    const loadCardImages = async () => {
-      const uniqueCardNames = new Set([
-        ...comparison.added.map((c) => c.name),
-        ...comparison.removed.map((c) => c.name),
-        ...comparison.unchanged.map((c) => c.name),
-      ]);
+    if (isNarrowLayout) {
+      return;
+    }
 
-      if (uniqueCardNames.size === 0) {
-        setCardImages(new Map());
-        return;
-      }
+    const timeoutId = setTimeout(() => {
+      const loadCardImages = async () => {
+        const uniqueCardNames = new Set([
+          ...comparison.added.map((c) => c.name),
+          ...comparison.removed.map((c) => c.name),
+          ...comparison.unchanged.map((c) => c.name),
+        ]);
 
-      const newImages = new Map<string, string>();
-
-      for (const cardName of uniqueCardNames) {
-        const imageUrl = await fetchCardImageUrl(cardName);
-        if (imageUrl) {
-          newImages.set(cardName, imageUrl);
+        if (uniqueCardNames.size === 0) {
+          setCardImages(new Map());
+          return;
         }
 
-        // Respect Scryfall's rate limiting
-        await sleep(DELAY_BETWEEN_REQUESTS);
-      }
+        const cardsToFetch = Array.from(uniqueCardNames).filter(
+          (name) => !cardImages.has(name),
+        );
 
-      setCardImages(newImages);
-    };
+        if (cardsToFetch.length === 0) {
+          return;
+        }
 
-    loadCardImages();
-  }, [comparison]);
+        const newImages = new Map(cardImages);
+
+        for (const cardName of cardsToFetch) {
+          const imageUrl = await fetchCardImageUrl(cardName);
+          if (imageUrl) {
+            newImages.set(cardName, imageUrl);
+          }
+
+          // Respect Scryfall's rate limiting
+          await sleep(DELAY_BETWEEN_REQUESTS);
+        }
+
+        setCardImages(newImages);
+      };
+
+      loadCardImages();
+    }, 2_000);
+
+    return () => clearTimeout(timeoutId);
+  }, [comparison, isNarrowLayout]);
 
   const formatSection = (
     title: string,
@@ -139,6 +171,8 @@ export function DeckDiff() {
   };
 
   const handleCardHover = (cardName: string, event: React.MouseEvent) => {
+    if (isNarrowLayout) return;
+
     setHoveredCard(cardName);
     setImagePosition({ x: event.clientX, y: event.clientY });
   };
@@ -148,7 +182,7 @@ export function DeckDiff() {
   };
 
   const handleMouseMove = (event: React.MouseEvent) => {
-    if (hoveredCard) {
+    if (hoveredCard && !isNarrowLayout) {
       setImagePosition({ x: event.clientX, y: event.clientY });
     }
   };
@@ -294,7 +328,7 @@ export function DeckDiff() {
         )}
       </div>
 
-      {hoveredCard && cardImages.has(hoveredCard) && (
+      {!isNarrowLayout && hoveredCard && cardImages.has(hoveredCard) && (
         <div
           className="card-image-preview"
           style={{
