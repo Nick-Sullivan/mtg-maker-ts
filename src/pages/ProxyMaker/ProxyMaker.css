@@ -163,6 +163,9 @@ button:disabled {
 
   .button-container button {
     flex: 1;
+    min-width: 0;
+    padding: 15px 10px;
+    font-size: 0.95rem;
   }
 }
 
