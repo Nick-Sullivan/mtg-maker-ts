@@ -37,14 +37,7 @@ body::before {
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  background: linear-gradient(to bottom, #1e3a1e 0%, #0d1f0d 100%);
-  border-radius: 16px;
-  box-shadow:
-    0 10px 40px rgba(0, 0, 0, 0.5),
-    0 0 20px rgba(34, 139, 34, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
   padding: 20px 40px 40px;
-  border: 2px solid rgba(46, 125, 50, 0.3);
   position: relative;
 }
 
