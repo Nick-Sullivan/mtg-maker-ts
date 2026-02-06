@@ -71,7 +71,7 @@ export function ProxyMaker() {
   return (
     <div className="container">
       <div className="header">
-        <h1>Magic The Gathering Proxy</h1>
+        <h1>Proxy Maker</h1>
       </div>
 
       <div className="input-and-buttons-container">

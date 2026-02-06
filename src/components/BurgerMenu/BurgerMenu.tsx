@@ -1,3 +1,4 @@
+import { GitCompare, Printer } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import "./BurgerMenu.css";
@@ -28,7 +29,7 @@ export function BurgerMenu() {
 
       <nav className={`burger-menu ${isOpen ? "open" : ""}`}>
         <div className="burger-menu-header">
-          <h2>MTG Tools</h2>
+          <h2>Magic The Gathering Tools</h2>
         </div>
         <ul className="burger-menu-links">
           <li>
@@ -37,33 +38,20 @@ export function BurgerMenu() {
               className={location.pathname === "/" ? "active" : ""}
               onClick={closeMenu}
             >
-              <span className="menu-icon">📄</span>
+              <Printer className="menu-icon" size={20} />
               Proxy Maker
             </Link>
           </li>
-          {/* Add more pages here as you create them */}
-          {/* 
           <li>
-            <Link 
-              to="/deck-builder" 
-              className={location.pathname === "/deck-builder" ? "active" : ""}
+            <Link
+              to="/deck-diff"
+              className={location.pathname === "/deck-diff" ? "active" : ""}
               onClick={closeMenu}
             >
-              <span className="menu-icon">🃏</span>
-              Deck Builder
+              <GitCompare className="menu-icon" size={20} />
+              Deck Difference
             </Link>
           </li>
-          <li>
-            <Link 
-              to="/card-search" 
-              className={location.pathname === "/card-search" ? "active" : ""}
-              onClick={closeMenu}
-            >
-              <span className="menu-icon">🔍</span>
-              Card Search
-            </Link>
-          </li>
-          */}
         </ul>
       </nav>
     </>

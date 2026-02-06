@@ -31,7 +31,7 @@ export const fetchAllCardMetadata = async ({
           (printing) =>
             printing.set.toLowerCase() === card.requestedSet!.toLowerCase() &&
             (!card.requestedCollectorNumber ||
-              printing.collector_number === card.requestedCollectorNumber)
+              printing.collector_number === card.requestedCollectorNumber),
         );
         if (requestedIndex !== -1) {
           selectedIndex = requestedIndex;
@@ -78,24 +78,41 @@ export const fetchAllCardMetadata = async ({
   return cardsWithMetadata;
 };
 
+export const fetchOnePrinting = async (
+  cardName: string,
+): Promise<ScryfallCard | null> => {
+  try {
+    const response = await fetch(
+      `${SCRYFALL_API_BASE}/cards/named?exact=${encodeURIComponent(cardName)}`,
+    );
+    if (!response.ok) {
+      return null;
+    }
+    return await response.json();
+  } catch (error) {
+    console.error(`Error fetching card ${cardName}:`, error);
+    return null;
+  }
+};
+
 export const fetchAllPrintings = async (
-  cardName: string
+  cardName: string,
 ): Promise<ScryfallCard[]> => {
   try {
     const response = await fetch(
       `${SCRYFALL_API_BASE}/cards/search?q=${encodeURIComponent(
-        `!"${cardName}" include:extras`
-      )}&unique=prints&order=released`
+        `!"${cardName}" include:extras`,
+      )}&unique=prints&order=released`,
     );
     if (!response.ok) {
       console.error(
-        `Failed to fetch printings for ${cardName}: ${response.status}`
+        `Failed to fetch printings for ${cardName}: ${response.status}`,
       );
       return [];
     }
     const data: ScryfallSearchResponse = await response.json();
     const filteredData = data.data.filter((card) =>
-      card.name.toLowerCase().startsWith(cardName.toLowerCase())
+      card.name.toLowerCase().startsWith(cardName.toLowerCase()),
     );
     return filteredData || [];
   } catch (error) {
@@ -105,7 +122,7 @@ export const fetchAllPrintings = async (
 };
 
 const getCardImageUrls = (
-  card: Partial<CardWithMetadata>
+  card: Partial<CardWithMetadata>,
 ): { imageUrls: string[]; isDoubleFaced: boolean } => {
   if (card.customImageUrls && card.customImageUrls.length > 0) {
     return {
@@ -131,7 +148,7 @@ const getCardImageUrls = (
 };
 
 export const getPrintingImageUrls = (
-  printing: ScryfallCard
+  printing: ScryfallCard,
 ): { imageUrls: string[]; isDoubleFaced: boolean } => {
   if (printing.card_faces && printing.card_faces.length > 0) {
     const faces: string[] = [];
@@ -153,4 +170,16 @@ export const getPrintingImageUrls = (
   }
 
   return { imageUrls: [], isDoubleFaced: false };
+};
+
+export const fetchCardImageUrl = async (
+  cardName: string,
+): Promise<string | null> => {
+  const card = await fetchOnePrinting(cardName);
+  if (!card) {
+    return null;
+  }
+
+  const { imageUrls } = getPrintingImageUrls(card);
+  return imageUrls[0] || null;
 };
