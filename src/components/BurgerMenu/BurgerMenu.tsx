@@ -42,7 +42,6 @@ export function BurgerMenu() {
             <a
               href="/mtg-maker-ts/proxy-maker.html"
               className={isProxyMaker ? "active" : ""}
-              onClick={closeMenu}
             >
               <Printer className="menu-icon" size={20} />
               Proxy Maker
@@ -52,7 +51,6 @@ export function BurgerMenu() {
             <a
               href="/mtg-maker-ts/compare-decks.html"
               className={isCompareDecks ? "active" : ""}
-              onClick={closeMenu}
             >
               <GitCompare className="menu-icon" size={20} />
               Compare Decks
