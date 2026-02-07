@@ -149,7 +149,27 @@
   color: #e8f5e9;
   box-sizing: border-box;
   overflow-y: hidden;
-  overflow-x: hidden;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.deck-input-with-badges textarea::-webkit-scrollbar {
+  height: 12px;
+}
+
+.deck-input-with-badges textarea::-webkit-scrollbar-track {
+  background: rgba(13, 31, 13, 0.6);
+  border-radius: 0 0 6px 6px;
+}
+
+.deck-input-with-badges textarea::-webkit-scrollbar-thumb {
+  background: rgba(46, 125, 50, 0.6);
+  border-radius: 6px;
+  border: 2px solid rgba(13, 31, 13, 0.6);
+}
+
+.deck-input-with-badges textarea::-webkit-scrollbar-thumb:hover {
+  background: rgba(76, 175, 80, 0.8);
 }
 
 .deck-input-with-badges textarea::placeholder {

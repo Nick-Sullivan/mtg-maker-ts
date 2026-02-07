@@ -61,20 +61,13 @@ export function CompareDeckInput({
   useEffect(() => {
     if (!deckText || sortBy === "input") return;
 
-    if (sortBy === "alignment" || sortBy === "alphabetical-aligned") {
-      // For alignment modes, rebuild textarea with empty lines for nulls
-      const lines = sortedCards.map((card) => {
-        if (card === null) return "";
-        return `${card.quantity} ${card.name}`;
-      });
-      onDeckTextChange(lines.join("\n"));
-      return;
-    }
-
     // Parse current deck to get all lines including duplicates
-    const lines = deckText.split("\n").filter((line) => line.trim());
+    const lines = deckText.split("\n");
     const parsedLines = lines
       .map((line) => {
+        const trimmed = line.trim();
+        if (!trimmed) return null;
+
         const parsed = parseDeck(line);
         return parsed.cards.length > 0
           ? {
@@ -89,6 +82,26 @@ export function CompareDeckInput({
       name: string;
       quantity: number;
     }>;
+
+    // Create a map of card names to their original line text
+    const originalLineMap = new Map<string, string>();
+    parsedLines.forEach((item) => {
+      originalLineMap.set(item.name.toLowerCase(), item.originalLine);
+    });
+
+    if (sortBy === "alignment" || sortBy === "alphabetical-aligned") {
+      // For alignment modes, use original text or empty line
+      const alignedLines = sortedCards.map((card) => {
+        if (card === null) return "";
+        // Use the original line text if we have it
+        return (
+          originalLineMap.get(card.name.toLowerCase()) ||
+          `${card.quantity} ${card.name}`
+        );
+      });
+      onDeckTextChange(alignedLines.join("\n"));
+      return;
+    }
 
     // Create a map of card names to their change info for sorting
     const cardChangeMap = new Map<string, CardWithChange>();
@@ -135,7 +148,7 @@ export function CompareDeckInput({
       return 0;
     });
 
-    // Rebuild the text from sorted lines
+    // Rebuild the text from sorted lines - preserving original formatting
     onDeckTextChange(parsedLines.map((l) => l.originalLine).join("\n"));
   }, [sortBy]);
 
