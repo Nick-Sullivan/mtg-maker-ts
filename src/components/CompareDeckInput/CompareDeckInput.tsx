@@ -51,8 +51,10 @@ export function CompareDeckInput({
     const textarea = textareaRef.current;
     if (!textarea) return;
 
+    // Reset height to recalculate
     textarea.style.height = "auto";
-    textarea.style.height = Math.max(textarea.scrollHeight, 600) + "px";
+    // Set to scrollHeight which is the actual content height
+    textarea.style.height = textarea.scrollHeight + "px";
   }, [deckText]);
 
   // When sort changes (but not on initial render), reorder the textarea

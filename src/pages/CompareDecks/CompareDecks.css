@@ -42,9 +42,19 @@ body:has(.compare-decks-container) {
 @media (max-width: 768px) {
   .compare-decks-inputs {
     grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .compare-decks-inputs > * {
+    min-height: 0;
   }
 
   .compare-decks-header h1 {
     font-size: 1.6rem;
+  }
+
+  .compare-decks-container {
+    padding: 15px 15px 15px;
   }
 }
