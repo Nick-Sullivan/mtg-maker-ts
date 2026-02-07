@@ -1,0 +1,70 @@
+.badge-line {
+  font-family: "Courier New", monospace;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 4px;
+  border-radius: 4px;
+  text-align: center;
+  letter-spacing: 0.3px;
+  height: 21px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  transition: all 0.2s;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.badge-line:hover {
+  transform: scale(1.05);
+}
+
+.badge-line.added {
+  background: rgba(76, 175, 80, 0.35);
+  color: #7dff7d;
+  border: 1px solid #4caf50;
+  box-shadow: 0 0 4px rgba(76, 175, 80, 0.3);
+  text-transform: lowercase;
+}
+
+.badge-line.removed {
+  background: rgba(198, 40, 40, 0.35);
+  color: #ff6b6b;
+  border: 1px solid #c62828;
+  box-shadow: 0 0 4px rgba(198, 40, 40, 0.3);
+  text-transform: lowercase;
+}
+
+.badge-line.increased {
+  background: rgba(76, 175, 80, 0.25);
+  color: #7dff7d;
+  border: 1px solid rgba(76, 175, 80, 0.6);
+  text-transform: none;
+  font-size: 12px;
+}
+
+.badge-line.decreased {
+  background: rgba(255, 152, 0, 0.25);
+  color: #ffb74d;
+  border: 1px solid rgba(255, 152, 0, 0.6);
+  text-transform: none;
+  font-size: 12px;
+}
+
+.badge-line.unchanged {
+  background: rgba(96, 125, 139, 0.2);
+  color: #b0bec5;
+  border: 1px solid rgba(96, 125, 139, 0.4);
+  text-transform: none;
+  font-size: 14px;
+}
+
+.badge-line.duplicate {
+  background: rgba(255, 193, 7, 0.25);
+  color: #ffc107;
+  border: 1px solid rgba(255, 193, 7, 0.6);
+  box-shadow: 0 0 4px rgba(255, 193, 7, 0.3);
+  text-transform: lowercase;
+  font-size: 9px;
+}

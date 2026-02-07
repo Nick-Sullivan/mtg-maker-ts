@@ -1,345 +1,353 @@
-import { Copy } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { CompareDeckInput } from "../../components/CompareDeckInput/CompareDeckInput";
 import { parseDeck } from "../../functions/parseDeck";
-import { DELAY_BETWEEN_REQUESTS } from "../../functions/scryfall/constants";
-import { fetchCardImageUrl } from "../../functions/scryfall/fetchCardArt";
-import { sleep } from "../../functions/sleep";
 import { Card } from "../../types";
 import "./CompareDecks.css";
 
-interface CardChange {
+interface CardWithChange {
   name: string;
   quantity: number;
+  changeType: "added" | "removed" | "unchanged" | "increased" | "decreased";
+  diff: number;
 }
+
+export type SortBy =
+  | "input"
+  | "alphabetical-asc"
+  | "alphabetical-desc"
+  | "alphabetical-aligned"
+  | "changeType-asc"
+  | "changeType-desc"
+  | "alignment";
 
 export function CompareDecks() {
   const [oldDeckText, setOldDeckText] = useState("");
   const [newDeckText, setNewDeckText] = useState("");
-  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
-  const [cardImages, setCardImages] = useState<Map<string, string>>(new Map());
-  const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
-  const [isNarrowLayout, setIsNarrowLayout] = useState(false);
-  const fetchingCards = useRef<Set<string>>(new Set());
+  const [sortBy, setSortBy] = useState<SortBy>("input");
 
-  useEffect(() => {
-    const checkLayout = () => {
-      // Check if the media query that stacks the inputs is active
-      const mediaQuery = window.matchMedia("(max-width: 768px)");
-      setIsNarrowLayout(mediaQuery.matches);
-    };
+  const oldScrollRef = useRef<HTMLDivElement>(null);
+  const newScrollRef = useRef<HTMLDivElement>(null);
 
-    checkLayout();
-
-    const mediaQuery = window.matchMedia("(max-width: 768px)");
-    const handler = (e: MediaQueryListEvent) => setIsNarrowLayout(e.matches);
-    mediaQuery.addEventListener("change", handler);
-
-    return () => mediaQuery.removeEventListener("change", handler);
+  // Sync scroll positions using callback refs
+  const handleOldScroll = useCallback(() => {
+    if (oldScrollRef.current && newScrollRef.current) {
+      newScrollRef.current.scrollTop = oldScrollRef.current.scrollTop;
+    }
   }, []);
 
-  const comparison = useMemo(() => {
+  const handleNewScroll = useCallback(() => {
+    if (oldScrollRef.current && newScrollRef.current) {
+      oldScrollRef.current.scrollTop = newScrollRef.current.scrollTop;
+    }
+  }, []);
+
+  const { oldDeckWithChanges, newDeckWithChanges } = useMemo(() => {
     const oldDeck = parseDeck(oldDeckText);
     const newDeck = parseDeck(newDeckText);
 
     const oldCardMap = new Map<string, number>();
     const newCardMap = new Map<string, number>();
 
+    // Aggregate quantities for duplicate cards
     oldDeck.cards.forEach((card: Card) => {
-      oldCardMap.set(card.name.toLowerCase(), card.quantity);
+      const existing = oldCardMap.get(card.name.toLowerCase()) || 0;
+      oldCardMap.set(card.name.toLowerCase(), existing + card.quantity);
     });
 
     newDeck.cards.forEach((card: Card) => {
-      newCardMap.set(card.name.toLowerCase(), card.quantity);
+      const existing = newCardMap.get(card.name.toLowerCase()) || 0;
+      newCardMap.set(card.name.toLowerCase(), existing + card.quantity);
     });
 
-    const allCardNames = new Set([...oldCardMap.keys(), ...newCardMap.keys()]);
-
-    const added: CardChange[] = [];
-    const removed: CardChange[] = [];
-    const unchanged: CardChange[] = [];
-
-    allCardNames.forEach((cardName) => {
-      const oldQty = oldCardMap.get(cardName) || 0;
-      const newQty = newCardMap.get(cardName) || 0;
-
-      if (oldQty === newQty && oldQty > 0) {
-        // All copies unchanged
-        unchanged.push({ name: cardName, quantity: oldQty });
-      } else if (oldQty < newQty) {
-        // Some unchanged, some added
-        if (oldQty > 0) {
-          unchanged.push({ name: cardName, quantity: oldQty });
-        }
-        added.push({ name: cardName, quantity: newQty - oldQty });
-      } else if (oldQty > newQty) {
-        // Some unchanged, some removed
-        if (newQty > 0) {
-          unchanged.push({ name: cardName, quantity: newQty });
-        }
-        removed.push({ name: cardName, quantity: oldQty - newQty });
+    // Build unique card list with aggregated quantities
+    const uniqueOldCards: Card[] = [];
+    const seenOld = new Set<string>();
+    oldDeck.cards.forEach((card) => {
+      const key = card.name.toLowerCase();
+      if (!seenOld.has(key)) {
+        seenOld.add(key);
+        uniqueOldCards.push({
+          ...card,
+          quantity: oldCardMap.get(key)!,
+        });
       }
     });
 
-    // Sort alphabetically
-    const sortFn = (a: CardChange, b: CardChange) =>
-      a.name.localeCompare(b.name);
-    added.sort(sortFn);
-    removed.sort(sortFn);
-    unchanged.sort(sortFn);
-
-    return { added, removed, unchanged };
-  }, [oldDeckText, newDeckText]);
-  useEffect(() => {
-    if (isNarrowLayout) {
-      return;
-    }
-
-    const timeoutId = setTimeout(() => {
-      const loadCardImages = async () => {
-        const uniqueCardNames = new Set([
-          ...comparison.added.map((c) => c.name),
-          ...comparison.removed.map((c) => c.name),
-          ...comparison.unchanged.map((c) => c.name),
-        ]);
-
-        if (uniqueCardNames.size === 0) {
-          setCardImages(new Map());
-          return;
-        }
-
-        const cardsToFetch = Array.from(uniqueCardNames).filter(
-          (name) => !cardImages.has(name) && !fetchingCards.current.has(name), // Check both
-        );
-
-        if (cardsToFetch.length === 0) {
-          return;
-        }
-
-        const newImages = new Map(cardImages);
-
-        for (const cardName of cardsToFetch) {
-          fetchingCards.current.add(cardName); // Mark as fetching
-          const imageUrl = await fetchCardImageUrl(cardName);
-          if (imageUrl) {
-            newImages.set(cardName, imageUrl);
-          }
-          fetchingCards.current.delete(cardName); // Mark as done
-
-          // Respect Scryfall's rate limiting
-          await sleep(DELAY_BETWEEN_REQUESTS);
-        }
-
-        setCardImages(newImages);
-      };
-
-      loadCardImages();
-    }, 2_000);
-
-    return () => clearTimeout(timeoutId);
-  }, [comparison, isNarrowLayout]);
-
-  const formatSection = (cards: CardChange[]) => {
-    if (cards.length === 0) return "";
-
-    const lines: string[] = [];
-
-    cards.forEach((card) => {
-      lines.push(`${card.quantity}x ${card.name}`);
+    const uniqueNewCards: Card[] = [];
+    const seenNew = new Set<string>();
+    newDeck.cards.forEach((card) => {
+      const key = card.name.toLowerCase();
+      if (!seenNew.has(key)) {
+        seenNew.add(key);
+        uniqueNewCards.push({
+          ...card,
+          quantity: newCardMap.get(key)!,
+        });
+      }
     });
 
-    return lines.join("\n");
-  };
+    const oldDeckWithChanges: CardWithChange[] = uniqueOldCards.map((card) => {
+      const oldQty = card.quantity;
+      const newQty = newCardMap.get(card.name.toLowerCase()) || 0;
+      const diff = newQty - oldQty;
 
-  const copySection = async (cards: CardChange[]) => {
-    const text = formatSection(cards);
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch (err) {
-      console.error("Failed to copy:", err);
-    }
-  };
+      if (newQty === 0) {
+        return {
+          name: card.name,
+          quantity: oldQty,
+          changeType: "removed" as const,
+          diff: 0,
+        };
+      } else if (diff === 0) {
+        return {
+          name: card.name,
+          quantity: oldQty,
+          changeType: "unchanged" as const,
+          diff: 0,
+        };
+      } else if (diff > 0) {
+        return {
+          name: card.name,
+          quantity: oldQty,
+          changeType: "increased" as const,
+          diff: diff,
+        };
+      } else {
+        return {
+          name: card.name,
+          quantity: oldQty,
+          changeType: "decreased" as const,
+          diff: diff,
+        };
+      }
+    });
 
-  const handleCardHover = (cardName: string, event: React.MouseEvent) => {
-    if (isNarrowLayout) return;
+    const newDeckWithChanges: CardWithChange[] = uniqueNewCards.map((card) => {
+      const newQty = card.quantity;
+      const oldQty = oldCardMap.get(card.name.toLowerCase()) || 0;
+      const diff = newQty - oldQty;
 
-    setHoveredCard(cardName);
-    setImagePosition({ x: event.clientX, y: event.clientY });
+      if (oldQty === 0) {
+        return {
+          name: card.name,
+          quantity: newQty,
+          changeType: "added" as const,
+          diff: diff,
+        };
+      } else if (diff === 0) {
+        return {
+          name: card.name,
+          quantity: newQty,
+          changeType: "unchanged" as const,
+          diff: 0,
+        };
+      } else if (diff > 0) {
+        return {
+          name: card.name,
+          quantity: newQty,
+          changeType: "increased" as const,
+          diff: diff,
+        };
+      } else {
+        return {
+          name: card.name,
+          quantity: newQty,
+          changeType: "decreased" as const,
+          diff: diff,
+        };
+      }
+    });
 
-    // Only fetch if not already cached AND not currently being fetched
-    if (!cardImages.has(cardName) && !fetchingCards.current.has(cardName)) {
-      fetchingCards.current.add(cardName);
-      fetchCardImageUrl(cardName).then((imageUrl) => {
-        if (imageUrl) {
-          setCardImages((prev) => new Map(prev).set(cardName, imageUrl));
-        }
-        fetchingCards.current.delete(cardName);
+    return { oldDeckWithChanges, newDeckWithChanges };
+  }, [oldDeckText, newDeckText]);
+
+  const getSortedCards = (
+    cards: CardWithChange[],
+    sortBy: SortBy,
+  ): CardWithChange[] => {
+    const sorted = [...cards];
+
+    if (sortBy === "alphabetical-asc") {
+      sorted.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sortBy === "alphabetical-desc") {
+      sorted.sort((a, b) => b.name.localeCompare(a.name));
+    } else if (sortBy === "changeType-asc") {
+      const order = {
+        removed: 0,
+        decreased: 1,
+        added: 2,
+        increased: 3,
+        unchanged: 4,
+      };
+      sorted.sort((a, b) => {
+        const orderDiff = order[a.changeType] - order[b.changeType];
+        if (orderDiff !== 0) return orderDiff;
+        return a.name.localeCompare(b.name);
+      });
+    } else if (sortBy === "changeType-desc") {
+      const order = {
+        removed: 4,
+        decreased: 3,
+        added: 2,
+        increased: 1,
+        unchanged: 0,
+      };
+      sorted.sort((a, b) => {
+        const orderDiff = order[a.changeType] - order[b.changeType];
+        if (orderDiff !== 0) return orderDiff;
+        return a.name.localeCompare(b.name);
       });
     }
+
+    return sorted;
   };
 
-  const handleCardLeave = () => {
-    setHoveredCard(null);
+  // For alignment mode, create placeholder entries
+  const getAlignedCards = (
+    sortAlphabetically: boolean = false,
+  ): {
+    oldAligned: (CardWithChange | null)[];
+    newAligned: (CardWithChange | null)[];
+  } => {
+    const oldCards = sortAlphabetically
+      ? getSortedCards(oldDeckWithChanges, "alphabetical-asc")
+      : getSortedCards(oldDeckWithChanges, "changeType-asc");
+    const newCards = sortAlphabetically
+      ? getSortedCards(newDeckWithChanges, "alphabetical-asc")
+      : getSortedCards(newDeckWithChanges, "changeType-asc");
+
+    const oldAligned: (CardWithChange | null)[] = [];
+    const newAligned: (CardWithChange | null)[] = [];
+
+    // Get all unique card names
+    const allCardNames = new Set<string>();
+    oldCards.forEach((c) => allCardNames.add(c.name.toLowerCase()));
+    newCards.forEach((c) => allCardNames.add(c.name.toLowerCase()));
+
+    const oldCardMap = new Map(oldCards.map((c) => [c.name.toLowerCase(), c]));
+    const newCardMap = new Map(newCards.map((c) => [c.name.toLowerCase(), c]));
+
+    // Process cards in the specified order
+    const sortedNames = Array.from(allCardNames).sort((a, b) => {
+      if (sortAlphabetically) {
+        // Just alphabetical order
+        const oldCard = oldCardMap.get(a);
+        const newCard = newCardMap.get(a);
+        const nameA = oldCard?.name || newCard?.name || "";
+
+        const oldCardB = oldCardMap.get(b);
+        const newCardB = newCardMap.get(b);
+        const nameB = oldCardB?.name || newCardB?.name || "";
+
+        return nameA.localeCompare(nameB);
+      } else {
+        // Change type order
+        const oldCard = oldCardMap.get(a);
+        const newCard = newCardMap.get(a);
+        const typeA = oldCard?.changeType || newCard?.changeType || "unchanged";
+
+        const oldCardB = oldCardMap.get(b);
+        const newCardB = newCardMap.get(b);
+        const typeB =
+          oldCardB?.changeType || newCardB?.changeType || "unchanged";
+
+        const order = {
+          removed: 0,
+          decreased: 1,
+          added: 2,
+          increased: 3,
+          unchanged: 4,
+        };
+
+        const orderDiff = order[typeA] - order[typeB];
+        if (orderDiff !== 0) return orderDiff;
+
+        const nameA = oldCard?.name || newCard?.name || "";
+        const nameB = oldCardB?.name || newCardB?.name || "";
+        return nameA.localeCompare(nameB);
+      }
+    });
+
+    sortedNames.forEach((cardName) => {
+      const oldCard = oldCardMap.get(cardName);
+      const newCard = newCardMap.get(cardName);
+
+      if (oldCard && newCard) {
+        // Card exists in both decks
+        oldAligned.push(oldCard);
+        newAligned.push(newCard);
+      } else if (oldCard && !newCard) {
+        // Card only in old deck (removed)
+        oldAligned.push(oldCard);
+        newAligned.push(null);
+      } else if (!oldCard && newCard) {
+        // Card only in new deck (added)
+        oldAligned.push(null);
+        newAligned.push(newCard);
+      }
+    });
+
+    return { oldAligned, newAligned };
   };
 
-  const handleMouseMove = (event: React.MouseEvent) => {
-    if (hoveredCard && !isNarrowLayout) {
-      setImagePosition({ x: event.clientX, y: event.clientY });
+  const { oldSortedCards, newSortedCards } = useMemo(() => {
+    if (sortBy === "alignment") {
+      const { oldAligned, newAligned } = getAlignedCards(false);
+      return {
+        oldSortedCards: oldAligned,
+        newSortedCards: newAligned,
+      };
+    } else if (sortBy === "alphabetical-aligned") {
+      const { oldAligned, newAligned } = getAlignedCards(true);
+      return {
+        oldSortedCards: oldAligned,
+        newSortedCards: newAligned,
+      };
+    } else {
+      return {
+        oldSortedCards: getSortedCards(oldDeckWithChanges, sortBy),
+        newSortedCards: getSortedCards(newDeckWithChanges, sortBy),
+      };
     }
-  };
+  }, [oldDeckWithChanges, newDeckWithChanges, sortBy]);
 
   return (
-    <div className="compare-decks-container" onMouseMove={handleMouseMove}>
+    <div className="compare-decks-container">
       <div className="compare-decks-header">
         <h1>Compare Decks</h1>
       </div>
 
       <div className="compare-decks-inputs">
-        <div className="deck-input-section">
-          <label>Old Deck</label>
-          <textarea
-            value={oldDeckText}
-            onChange={(e) => setOldDeckText(e.target.value)}
-            placeholder="4 Lightning Bolt
+        <CompareDeckInput
+          label="Old Deck"
+          deckText={oldDeckText}
+          onDeckTextChange={setOldDeckText}
+          sortBy={sortBy}
+          onSortByChange={setSortBy}
+          sortedCards={oldSortedCards}
+          placeholder={`4 Lightning Bolt
 2 Counterspell
-1 Black Lotus"
-          />
-        </div>
+1 Black Lotus`}
+          isOldDeck={true}
+          scrollRef={oldScrollRef}
+          onScroll={handleOldScroll}
+        />
 
-        <div className="deck-input-section">
-          <label>New Deck</label>
-          <textarea
-            value={newDeckText}
-            onChange={(e) => setNewDeckText(e.target.value)}
-            placeholder="3 Lightning Bolt
+        <CompareDeckInput
+          label="New Deck"
+          deckText={newDeckText}
+          onDeckTextChange={setNewDeckText}
+          sortBy={sortBy}
+          onSortByChange={setSortBy}
+          sortedCards={newSortedCards}
+          placeholder={`3 Lightning Bolt
 2 Counterspell
-1 Sol Ring"
-          />
-        </div>
+1 Sol Ring`}
+          isOldDeck={false}
+          scrollRef={newScrollRef}
+          onScroll={handleNewScroll}
+        />
       </div>
-
-      <div className="compare-decks-results">
-        {comparison.added.length > 0 && (
-          <div className="diff-section added">
-            <div className="diff-section-header">
-              <h2>
-                Added (
-                {comparison.added.reduce((sum, c) => sum + c.quantity, 0)}{" "}
-                cards)
-              </h2>
-              <button
-                onClick={() => copySection(comparison.added)}
-                className="btn-copy-section"
-                title="Copy added cards"
-              >
-                <Copy size={16} />
-              </button>
-            </div>
-            <ul>
-              {comparison.added.map((card) => (
-                <li key={card.name}>
-                  <span className="quantity">+{card.quantity}</span>
-                  <span
-                    className="card-name"
-                    onMouseEnter={(e) => handleCardHover(card.name, e)}
-                    onMouseLeave={handleCardLeave}
-                  >
-                    {card.name}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {comparison.removed.length > 0 && (
-          <div className="diff-section removed">
-            <div className="diff-section-header">
-              <h2>
-                Removed (
-                {comparison.removed.reduce((sum, c) => sum + c.quantity, 0)}{" "}
-                cards)
-              </h2>
-              <button
-                onClick={() => copySection(comparison.removed)}
-                className="btn-copy-section"
-                title="Copy removed cards"
-              >
-                <Copy size={16} />
-              </button>
-            </div>
-            <ul>
-              {comparison.removed.map((card) => (
-                <li key={card.name}>
-                  <span className="quantity">-{card.quantity}</span>
-                  <span
-                    className="card-name"
-                    onMouseEnter={(e) => handleCardHover(card.name, e)}
-                    onMouseLeave={handleCardLeave}
-                  >
-                    {card.name}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {comparison.unchanged.length > 0 && (
-          <div className="diff-section unchanged">
-            <div className="diff-section-header">
-              <h2>
-                Unchanged (
-                {comparison.unchanged.reduce((sum, c) => sum + c.quantity, 0)}{" "}
-                cards)
-              </h2>
-              <button
-                onClick={() => copySection(comparison.unchanged)}
-                className="btn-copy-section"
-                title="Copy unchanged cards"
-              >
-                <Copy size={16} />
-              </button>
-            </div>
-            <ul>
-              {comparison.unchanged.map((card) => (
-                <li key={card.name}>
-                  <span className="quantity">{card.quantity}x</span>
-                  <span
-                    className="card-name"
-                    onMouseEnter={(e) => handleCardHover(card.name, e)}
-                    onMouseLeave={handleCardLeave}
-                  >
-                    {card.name}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {oldDeckText === "" && newDeckText === "" && (
-          <div className="diff-empty">
-            Paste decklists above to see the comparison
-          </div>
-        )}
-      </div>
-
-      {!isNarrowLayout && hoveredCard && (
-        <div
-          className="card-image-preview"
-          style={{
-            left: `${imagePosition.x + 20}px`,
-            top: `${imagePosition.y + 20}px`,
-            cursor: cardImages.has(hoveredCard) ? "default" : "wait",
-          }}
-        >
-          {cardImages.has(hoveredCard) ? (
-            <img src={cardImages.get(hoveredCard)} alt={hoveredCard} />
-          ) : (
-            <div className="preview-loading">Loading...</div>
-          )}
-        </div>
-      )}
     </div>
   );
 }

@@ -1,0 +1,155 @@
+.deck-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.deck-title {
+  color: #7dff7d;
+  font-weight: 600;
+  font-size: 1.1rem;
+  text-shadow: 0 0 8px rgba(125, 255, 125, 0.4);
+  padding: 0 5px;
+}
+
+.deck-input-wrapper {
+  border: 2px solid rgba(46, 125, 50, 0.5);
+  border-radius: 8px;
+  background: rgba(13, 31, 13, 0.4);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.deck-input-wrapper:has(textarea:focus) {
+  border-color: #4caf50;
+  box-shadow: 0 0 12px rgba(76, 175, 80, 0.4);
+}
+
+.column-headers {
+  display: flex;
+  gap: 0;
+  background: rgba(13, 31, 13, 0.6);
+  border-bottom: 2px solid rgba(46, 125, 50, 0.3);
+  height: 36px;
+}
+
+.column-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  color: #a8d5a8;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+  gap: 6px;
+}
+
+.column-header:hover {
+  background: rgba(76, 175, 80, 0.15);
+  color: #7dff7d;
+}
+
+.column-header.active {
+  background: rgba(46, 125, 50, 0.25);
+  color: #7dff7d;
+}
+
+.sort-arrow {
+  font-size: 1rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.status-header {
+  min-width: 80px;
+  max-width: 80px;
+  border-right: 2px solid rgba(46, 125, 50, 0.3);
+  flex-shrink: 0;
+}
+
+.name-header {
+  flex: 1;
+  justify-content: space-between;
+  padding-left: 15px;
+}
+
+.sort-badge {
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  background: rgba(13, 31, 13, 0.8);
+  border: 1px solid rgba(76, 175, 80, 0.4);
+  border-radius: 3px;
+  color: #a8d5a8;
+  font-weight: 500;
+}
+
+.deck-input-with-badges {
+  display: flex;
+  gap: 0;
+  height: calc(100vh - 200px);
+  overflow-y: auto;
+  position: relative;
+}
+
+.deck-input-with-badges::-webkit-scrollbar {
+  width: 12px;
+}
+
+.deck-input-with-badges::-webkit-scrollbar-track {
+  background: rgba(13, 31, 13, 0.6);
+  border-radius: 0 0 6px 0;
+}
+
+.deck-input-with-badges::-webkit-scrollbar-thumb {
+  background: rgba(46, 125, 50, 0.6);
+  border-radius: 6px;
+  border: 2px solid rgba(13, 31, 13, 0.6);
+}
+
+.deck-input-with-badges::-webkit-scrollbar-thumb:hover {
+  background: rgba(76, 175, 80, 0.8);
+}
+
+.badges-column {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 15px 6px;
+  background: transparent;
+  border-right: 2px solid rgba(46, 125, 50, 0.3);
+  min-width: 80px;
+  max-width: 80px;
+  flex-shrink: 0;
+}
+
+.deck-input-with-badges textarea {
+  flex: 1;
+  min-height: 100%;
+  padding: 15px;
+  border: none;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  line-height: 25px;
+  resize: none;
+  background: transparent;
+  color: #e8f5e9;
+  overflow-y: hidden;
+  box-sizing: border-box;
+}
+
+.deck-input-with-badges textarea::placeholder {
+  color: rgba(168, 213, 168, 0.6);
+}
+
+.deck-input-with-badges textarea:focus {
+  outline: none;
+}
+
+.badge-line-empty {
+  height: 21px;
+  flex-shrink: 0;
+}
