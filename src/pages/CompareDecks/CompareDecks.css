@@ -40,18 +40,25 @@ body:has(.compare-decks-container) {
 }
 
 @media (max-width: 768px) {
-  .compare-decks-inputs {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 10px;
-  }
-
-  .compare-decks-inputs > * {
-    min-height: 0;
+  .compare-decks-header {
+    margin-bottom: 10px;
   }
 
   .compare-decks-header h1 {
     font-size: 1.6rem;
+    margin-bottom: 5px;
+  }
+
+  .compare-decks-inputs {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 10px;
+    overflow: hidden;
+  }
+
+  .compare-decks-inputs > * {
+    min-height: 0;
+    overflow: hidden;
   }
 
   .compare-decks-container {
