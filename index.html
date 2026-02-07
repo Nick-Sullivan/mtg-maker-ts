@@ -5,18 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MTG Tools</title>
     <script>
-      // Restore the path from 404 redirect
-      (function () {
-        var redirect = sessionStorage.redirect;
-        delete sessionStorage.redirect;
-        if (redirect && redirect !== location.pathname) {
-          history.replaceState(null, null, redirect);
-        }
-      })();
+      window.location.replace("/mtg-maker-ts/proxy-maker.html");
     </script>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <p>
+      Redirecting to <a href="/mtg-maker-ts/proxy-maker.html">Proxy Maker</a>...
+    </p>
   </body>
 </html>
