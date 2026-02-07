@@ -11,13 +11,8 @@
   align-items: center;
   justify-content: center;
   white-space: nowrap;
-  transition: all 0.2s;
   line-height: 1;
   flex-shrink: 0;
-}
-
-.badge-line:hover {
-  transform: scale(1.05);
 }
 
 .badge-line.added {
@@ -29,42 +24,34 @@
 }
 
 .badge-line.removed {
-  background: rgba(198, 40, 40, 0.35);
+  background: rgba(211, 47, 47, 0.35);
   color: #ff6b6b;
-  border: 1px solid #c62828;
-  box-shadow: 0 0 4px rgba(198, 40, 40, 0.3);
+  border: 1px solid #d32f2f;
+  box-shadow: 0 0 4px rgba(211, 47, 47, 0.3);
   text-transform: lowercase;
 }
 
-.badge-line.increased {
-  background: rgba(76, 175, 80, 0.25);
-  color: #7dff7d;
-  border: 1px solid rgba(76, 175, 80, 0.6);
-  text-transform: none;
-  font-size: 12px;
-}
-
-.badge-line.decreased {
-  background: rgba(255, 152, 0, 0.25);
-  color: #ffb74d;
-  border: 1px solid rgba(255, 152, 0, 0.6);
-  text-transform: none;
-  font-size: 12px;
-}
-
 .badge-line.unchanged {
-  background: rgba(96, 125, 139, 0.2);
-  color: #b0bec5;
-  border: 1px solid rgba(96, 125, 139, 0.4);
-  text-transform: none;
-  font-size: 14px;
+  background: rgba(97, 97, 97, 0.35);
+  color: #bdbdbd;
+  border: 1px solid #757575;
+  box-shadow: 0 0 4px rgba(97, 97, 97, 0.3);
+}
+
+.badge-line.increased,
+.badge-line.decreased {
+  background: rgba(255, 193, 7, 0.35);
+  color: #ffd54f;
+  border: 1px solid #ffa000;
+  box-shadow: 0 0 4px rgba(255, 193, 7, 0.3);
+  font-size: 9px;
 }
 
 .badge-line.duplicate {
   background: rgba(255, 193, 7, 0.25);
-  color: #ffc107;
-  border: 1px solid rgba(255, 193, 7, 0.6);
-  box-shadow: 0 0 4px rgba(255, 193, 7, 0.3);
-  text-transform: lowercase;
+  color: #ffd54f;
+  border: 1px solid rgba(255, 193, 7, 0.4);
+  box-shadow: 0 0 4px rgba(255, 193, 7, 0.2);
   font-size: 9px;
+  text-transform: lowercase;
 }
