@@ -150,7 +150,7 @@
   box-sizing: border-box;
   overflow-y: hidden;
   overflow-x: auto;
-  white-space: nowrap;
+  white-space: pre;
 }
 
 .deck-input-with-badges textarea::-webkit-scrollbar {
