@@ -1,5 +1,5 @@
 import { Copy } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { parseDeck } from "../../functions/parseDeck";
 import { DELAY_BETWEEN_REQUESTS } from "../../functions/scryfall/constants";
 import { fetchCardImageUrl } from "../../functions/scryfall/fetchCardArt";
@@ -19,6 +19,7 @@ export function CompareDecks() {
   const [cardImages, setCardImages] = useState<Map<string, string>>(new Map());
   const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
   const [isNarrowLayout, setIsNarrowLayout] = useState(false);
+  const fetchingCards = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     const checkLayout = () => {
@@ -88,7 +89,6 @@ export function CompareDecks() {
 
     return { added, removed, unchanged };
   }, [oldDeckText, newDeckText]);
-
   useEffect(() => {
     if (isNarrowLayout) {
       return;
@@ -108,7 +108,7 @@ export function CompareDecks() {
         }
 
         const cardsToFetch = Array.from(uniqueCardNames).filter(
-          (name) => !cardImages.has(name),
+          (name) => !cardImages.has(name) && !fetchingCards.current.has(name), // Check both
         );
 
         if (cardsToFetch.length === 0) {
@@ -118,10 +118,12 @@ export function CompareDecks() {
         const newImages = new Map(cardImages);
 
         for (const cardName of cardsToFetch) {
+          fetchingCards.current.add(cardName); // Mark as fetching
           const imageUrl = await fetchCardImageUrl(cardName);
           if (imageUrl) {
             newImages.set(cardName, imageUrl);
           }
+          fetchingCards.current.delete(cardName); // Mark as done
 
           // Respect Scryfall's rate limiting
           await sleep(DELAY_BETWEEN_REQUESTS);
@@ -162,6 +164,17 @@ export function CompareDecks() {
 
     setHoveredCard(cardName);
     setImagePosition({ x: event.clientX, y: event.clientY });
+
+    // Only fetch if not already cached AND not currently being fetched
+    if (!cardImages.has(cardName) && !fetchingCards.current.has(cardName)) {
+      fetchingCards.current.add(cardName);
+      fetchCardImageUrl(cardName).then((imageUrl) => {
+        if (imageUrl) {
+          setCardImages((prev) => new Map(prev).set(cardName, imageUrl));
+        }
+        fetchingCards.current.delete(cardName);
+      });
+    }
   };
 
   const handleCardLeave = () => {
@@ -311,15 +324,20 @@ export function CompareDecks() {
         )}
       </div>
 
-      {!isNarrowLayout && hoveredCard && cardImages.has(hoveredCard) && (
+      {!isNarrowLayout && hoveredCard && (
         <div
           className="card-image-preview"
           style={{
             left: `${imagePosition.x + 20}px`,
             top: `${imagePosition.y + 20}px`,
+            cursor: cardImages.has(hoveredCard) ? "default" : "wait",
           }}
         >
-          <img src={cardImages.get(hoveredCard)} alt={hoveredCard} />
+          {cardImages.has(hoveredCard) ? (
+            <img src={cardImages.get(hoveredCard)} alt={hoveredCard} />
+          ) : (
+            <div className="preview-loading">Loading...</div>
+          )}
         </div>
       )}
     </div>
