@@ -47,6 +47,13 @@
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
 }
 
+.showcase-preview-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
 .showcase-download-btn {
   background: #2e7d32;
   color: #fff;
@@ -61,6 +68,24 @@
 
 .showcase-download-btn:hover {
   background: #388e3c;
+}
+
+.showcase-export-btn,
+.showcase-import-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.showcase-export-btn:hover,
+.showcase-import-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
 }
 
 .showcase-form {
