@@ -3,7 +3,7 @@ import { resolve } from "path";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  base: process.env.BASE_PATH ?? "/mtg-maker/",
+  base: "/mtg-maker/",
   plugins: [react()],
   build: {
     rollupOptions: {
