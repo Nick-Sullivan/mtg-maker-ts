@@ -9,8 +9,8 @@ export function BurgerMenu() {
   const currentPath = window.location.pathname;
   const isProxyMaker =
     currentPath.includes("proxy-maker") ||
-    currentPath === "/mtg-maker-ts/" ||
-    currentPath === "/mtg-maker-ts";
+    currentPath === "/mtg-maker/" ||
+    currentPath === "/mtg-maker";
   const isCompareDecks = currentPath.includes("compare-decks");
   const isDeckShowcase = currentPath.includes("deck-showcase");
 
@@ -41,7 +41,7 @@ export function BurgerMenu() {
         <ul className="burger-menu-links">
           <li>
             <a
-              href="/mtg-maker-ts/proxy-maker.html"
+              href="/mtg-maker/proxy-maker.html"
               className={isProxyMaker ? "active" : ""}
             >
               <Printer className="menu-icon" size={20} />
@@ -50,7 +50,7 @@ export function BurgerMenu() {
           </li>
           <li>
             <a
-              href="/mtg-maker-ts/compare-decks.html"
+              href="/mtg-maker/compare-decks.html"
               className={isCompareDecks ? "active" : ""}
             >
               <GitCompare className="menu-icon" size={20} />
@@ -59,7 +59,7 @@ export function BurgerMenu() {
           </li>
           <li>
             <a
-              href="/mtg-maker-ts/deck-showcase.html"
+              href="/mtg-maker/deck-showcase.html"
               className={isDeckShowcase ? "active" : ""}
             >
               <Image className="menu-icon" size={20} />

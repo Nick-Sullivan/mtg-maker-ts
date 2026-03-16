@@ -21,7 +21,7 @@ locals {
   prefix_parameter = "/WebsiteCv/production"
   build_folder     = "${path.root}/../dist"
   s3_bucket        = "nickdavesullivan.com"
-  base_path        = "mtg-maker-ts"
+  base_path        = "mtg-maker"
   tags = {
     Project     = "MTG Maker TS"
     Environment = "production"
@@ -47,11 +47,29 @@ resource "aws_s3_object" "static_files" {
   etag         = each.value.digests.md5
 }
 
+resource "aws_s3_object" "redirect_old_path" {
+  bucket       = local.s3_bucket
+  key          = "mtg-maker-ts/index.html"
+  content_type = "text/html"
+  content      = <<-HTML
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta http-equiv="refresh" content="0; url=/mtg-maker/" />
+        <link rel="canonical" href="/mtg-maker/" />
+      </head>
+      <body>
+        <p>Redirecting to <a href="/mtg-maker/">MTG Maker</a>...</p>
+      </body>
+    </html>
+  HTML
+}
+
 resource "terraform_data" "clear_cloudfront_cache" {
   depends_on       = [aws_s3_object.static_files]
   triggers_replace = [timestamp()]
   provisioner "local-exec" {
-    command = "aws cloudfront create-invalidation --distribution-id ${data.aws_ssm_parameter.cloudfront_distribution_id.value} --paths '/${local.base_path}/*'"
+    command = "aws cloudfront create-invalidation --distribution-id ${data.aws_ssm_parameter.cloudfront_distribution_id.value} --paths '/${local.base_path}/*' '/mtg-maker-ts/*'"
   }
 }
 
