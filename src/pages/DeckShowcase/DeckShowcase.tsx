@@ -123,6 +123,10 @@ export function DeckShowcase() {
   const [suggestCard, setSuggestCard] = useState<ShowcaseCard | null>(null);
   const [suggestRole, setSuggestRole] = useState<CardRole | null>(null);
 
+  const debouncedTitle = useDebounce(title, 300);
+  const debouncedBracket = useDebounce(bracket, 300);
+  const debouncedDescription = useDebounce(description, 300);
+
   const debouncedCommanderNames = useDebounce(commanderNames, 600);
   const debouncedKeyNames = useDebounce(keyNames, 600);
 
@@ -272,9 +276,9 @@ export function DeckShowcase() {
     }
 
     const state: DrawState = {
-      title,
-      bracket,
-      description,
+      title: debouncedTitle,
+      bracket: debouncedBracket,
+      description: debouncedDescription,
       keyCardImgs: keyImgs,
       keyCardLoadingStates: keyNames.map((name, i) => name.trim() !== "" && !keyImgs[i]),
       commanderImg: commanderImgs[0] ?? null,
@@ -292,9 +296,9 @@ export function DeckShowcase() {
     };
     document.fonts.ready.then(() => drawShowcase(canvas, state));
   }, [
-    title,
-    bracket,
-    description,
+    debouncedTitle,
+    debouncedBracket,
+    debouncedDescription,
     keyImgs,
     keys,
     keyNames,
@@ -685,7 +689,7 @@ export function DeckShowcase() {
                   <button
                     key={c}
                     className={`color-picker-btn ${active ? "active" : ""}`}
-                    onClick={() => {
+                    onClick={(e) => {
                       const base =
                         manualColorIdentity ??
                         commanders[0]?.colorIdentity ??
@@ -694,6 +698,7 @@ export function DeckShowcase() {
                         ? base.filter((x) => x !== c)
                         : [...base, c];
                       setManualColorIdentity(next);
+                      e.currentTarget.blur();
                     }}
                   >
                     <img

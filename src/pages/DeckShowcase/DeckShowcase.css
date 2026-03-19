@@ -24,6 +24,18 @@
   align-items: start;
 }
 
+@media (max-width: 768px) {
+  .showcase-heading {
+    font-size: 1.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .showcase-heading {
+    font-size: 1.4rem;
+  }
+}
+
 @media (max-width: 900px) {
   .showcase-layout {
     grid-template-columns: 1fr;
