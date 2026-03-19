@@ -1,6 +1,7 @@
 import { getBasePalette, getPalette } from "./palette";
 
 export const CANVAS_SIZE = 2400;
+const WUBRG = ['W', 'U', 'B', 'R', 'G'];
 
 export interface DrawState {
   title: string;
@@ -133,45 +134,59 @@ export function drawShowcase(canvas: HTMLCanvasElement, state: DrawState) {
   const S = CANVAS_SIZE / 2;
   const palette = getPalette(state.colorIdentity);
 
-  const subPalettes = state.colorIdentity.length === 2
-    ? state.colorIdentity.map(getBasePalette).filter(Boolean) as ReturnType<typeof getBasePalette>[]
+  const sortedColors = [...state.colorIdentity].sort((a, b) => WUBRG.indexOf(a) - WUBRG.indexOf(b));
+  const subPalettes = sortedColors.length >= 2
+    ? sortedColors.map(getBasePalette).filter(Boolean) as NonNullable<ReturnType<typeof getBasePalette>>[]
     : null;
 
-  if (subPalettes && subPalettes.length === 2) {
-    const [p1, p2] = subPalettes;
+  if (subPalettes && subPalettes.length >= 2) {
+    // Anchor positions (as fractions of S) for each color, spread evenly around canvas
+    const ANCHORS: [number, number][][] = [
+      [],
+      [],
+      [[0, 0], [1, 1]],
+      [[0, 0], [1, 0], [0.5, 1]],
+      [[0, 0], [1, 0], [0, 1], [1, 1]],
+      [[0, 0], [1, 0], [0.5, 0.5], [0, 1], [1, 1]],
+    ];
+    const anchors = ANCHORS[subPalettes.length];
 
-    // Base fill from darkest of the two
-    ctx.fillStyle = p1!.dark;
+    // Base fill: linear gradient between first and last colour's dark so no black shows through
+    const [ax0, ay0] = anchors[0];
+    const [axN, ayN] = anchors[anchors.length - 1];
+    const baseBg = ctx.createLinearGradient(S * ax0, S * ay0, S * axN, S * ayN);
+    baseBg.addColorStop(0, subPalettes[0].dark);
+    baseBg.addColorStop(1, subPalettes[subPalettes.length - 1].dark);
+    ctx.fillStyle = baseBg;
     ctx.fillRect(0, 0, S, S);
 
-    // Color 1 radiates from top-left
-    const g1 = ctx.createRadialGradient(0, 0, 0, S * 0.1, S * 0.1, S * 0.85);
-    g1.addColorStop(0, p1!.mid);
-    g1.addColorStop(0.5, p1!.dark);
-    g1.addColorStop(1, "transparent");
-    ctx.fillStyle = g1;
-    ctx.fillRect(0, 0, S, S);
+    // Each color radiates from its anchor, fading to the neighbouring dark rather than transparent
+    for (let i = 0; i < subPalettes.length; i++) {
+      const p = subPalettes[i];
+      const [fx, fy] = anchors[i];
+      const cx = S * fx;
+      const cy = S * fy;
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, S * 0.9);
+      g.addColorStop(0, p.mid);
+      g.addColorStop(0.45, p.dark);
+      g.addColorStop(1, "transparent");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, S, S);
+    }
 
-    // Color 2 radiates from bottom-right
-    const g2 = ctx.createRadialGradient(S, S, 0, S * 0.9, S * 0.9, S * 0.85);
-    g2.addColorStop(0, p2!.mid);
-    g2.addColorStop(0.5, p2!.dark);
-    g2.addColorStop(1, "transparent");
-    ctx.fillStyle = g2;
-    ctx.fillRect(0, 0, S, S);
-
-    // Per-color glows
-    const gg1 = ctx.createRadialGradient(S * 0.2, S * 0.3, 0, S * 0.2, S * 0.3, S * 0.5);
-    gg1.addColorStop(0, p1!.glow + "30");
-    gg1.addColorStop(1, "transparent");
-    ctx.fillStyle = gg1;
-    ctx.fillRect(0, 0, S, S);
-
-    const gg2 = ctx.createRadialGradient(S * 0.8, S * 0.7, 0, S * 0.8, S * 0.7, S * 0.5);
-    gg2.addColorStop(0, p2!.glow + "30");
-    gg2.addColorStop(1, "transparent");
-    ctx.fillStyle = gg2;
-    ctx.fillRect(0, 0, S, S);
+    // Glows slightly inset from each anchor
+    const glowInset = 0.2;
+    for (let i = 0; i < subPalettes.length; i++) {
+      const p = subPalettes[i];
+      const [fx, fy] = anchors[i];
+      const gx = fx === 0 ? glowInset : fx === 1 ? 1 - glowInset : fx;
+      const gy = fy === 0 ? glowInset : fy === 1 ? 1 - glowInset : fy;
+      const gg = ctx.createRadialGradient(S * gx, S * gy, 0, S * gx, S * gy, S * 0.5);
+      gg.addColorStop(0, p.glow + "30");
+      gg.addColorStop(1, "transparent");
+      ctx.fillStyle = gg;
+      ctx.fillRect(0, 0, S, S);
+    }
   } else {
     const bg = ctx.createLinearGradient(0, 0, S * 0.3, S);
     bg.addColorStop(0, palette.dark);
@@ -341,48 +356,45 @@ export function drawShowcase(canvas: HTMLCanvasElement, state: DrawState) {
     ctx.restore();
   }
 
-  // Bracket badge + color icons — below title
+  // Color icons + bracket badge — stacked below title
   const rowY = titleBottomY - 30;
   const iconSize = 48;
   const iconGap = 8;
-  const WUBRG = ['W', 'U', 'B', 'R', 'G'];
   const activeColors = WUBRG.filter((c) => state.colorIdentity.includes(c));
+  const iconsVisible = state.showColorIcons && activeColors.length > 0;
+  const titleCX = rightX + rightW / 2;
 
-  // Bracket + icons row — right-aligned below title
-  const totalIconW = (state.showColorIcons && activeColors.length > 0)
-    ? activeColors.length * iconSize + (activeColors.length - 1) * iconGap
-    : 0;
-
-  let bracketW = 0;
-  if (state.bracket) {
-    ctx.font = "bold 30px Philosopher, 'Segoe UI', Tahoma, serif";
-    bracketW = ctx.measureText(state.bracket).width + 36;
+  // Row 1: color icons
+  if (iconsVisible) {
+    const totalIconW = activeColors.length * iconSize + (activeColors.length - 1) * iconGap;
+    let ix = titleCX - totalIconW / 2;
+    for (const color of activeColors) {
+      const img = state.colorIcons[color];
+      if (img) ctx.drawImage(img, ix, rowY, iconSize, iconSize);
+      ix += iconSize + iconGap;
+    }
   }
 
-  const rowGap = bracketW > 0 && totalIconW > 0 ? 16 : 0;
-  // Centre bracket + icons within the right column
-  const totalRowW = bracketW + rowGap + totalIconW;
-  const titleCX = rightX + rightW / 2;
-  const rowStartX = titleCX - totalRowW / 2;
-  const iconsStartX = rowStartX + bracketW + rowGap;
-
+  // Row 2: bracket badge — below icons (or at rowY if no icons)
+  const bracketRowY = iconsVisible ? rowY + iconSize + 10 : rowY;
+  let bracketH = 0;
   if (state.bracket) {
-    ctx.save();
     ctx.font = "bold 30px Philosopher, 'Segoe UI', Tahoma, serif";
-    const bw = bracketW;
-    const bh = 48;
-    const br = bh / 2;
-    const bx = rowStartX;
-    const by = rowY;
+    const bw = ctx.measureText(state.bracket).width + 36;
+    bracketH = 48;
+    const br = bracketH / 2;
+    const bx = titleCX - bw / 2;
+    const by = bracketRowY;
+    ctx.save();
     ctx.fillStyle = palette.accent + "cc";
     ctx.shadowBlur = 12;
     ctx.shadowColor = "rgba(0,0,0,0.5)";
     ctx.beginPath();
     ctx.moveTo(bx + br, by); ctx.lineTo(bx + bw - br, by);
     ctx.arcTo(bx + bw, by, bx + bw, by + br, br);
-    ctx.arcTo(bx + bw, by + bh, bx + bw - br, by + bh, br);
-    ctx.lineTo(bx + br, by + bh);
-    ctx.arcTo(bx, by + bh, bx, by + bh - br, br);
+    ctx.arcTo(bx + bw, by + bracketH, bx + bw - br, by + bracketH, br);
+    ctx.lineTo(bx + br, by + bracketH);
+    ctx.arcTo(bx, by + bracketH, bx, by + bracketH - br, br);
     ctx.arcTo(bx, by, bx + br, by, br);
     ctx.closePath();
     ctx.fill();
@@ -392,17 +404,9 @@ export function drawShowcase(canvas: HTMLCanvasElement, state: DrawState) {
     ctx.restore();
   }
 
-  if (state.showColorIcons && activeColors.length > 0) {
-    let ix = iconsStartX;
-    for (const color of activeColors) {
-      const img = state.colorIcons[color];
-      if (img) ctx.drawImage(img, ix, rowY, iconSize, iconSize);
-      ix += iconSize + iconGap;
-    }
-  }
-
-  const iconsVisible = state.showColorIcons && activeColors.length > 0;
-  const headerBottomY = (state.bracket || iconsVisible) ? rowY + iconSize + 8 : rowY;
+  const headerBottomY = (state.bracket || iconsVisible)
+    ? bracketRowY + (state.bracket ? bracketH + 8 : iconsVisible ? iconSize + 8 : 0)
+    : rowY;
 
   // Description — top-right area, below header elements
   const descAreaTop = Math.max(headerBottomY + 30, 120);

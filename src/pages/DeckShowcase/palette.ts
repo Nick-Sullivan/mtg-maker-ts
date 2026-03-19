@@ -8,7 +8,7 @@ interface Palette {
 const BASE: Record<string, Palette> = {
   W: { dark: "#2a2316", mid: "#5c4520", accent: "#d4b96a", glow: "#fff5cc" },
   U: { dark: "#04102a", mid: "#0d2a5c", accent: "#4a8fd4", glow: "#b3d0ff" },
-  B: { dark: "#09080f", mid: "#1c0b35", accent: "#9068c0", glow: "#d4b3ff" },
+  B: { dark: "#090909", mid: "#1a1a1a", accent: "#555555", glow: "#aaaaaa" },
   R: { dark: "#1c0606", mid: "#5c1010", accent: "#d4351a", glow: "#ffb3a0" },
   G: { dark: "#081209", mid: "#0d3814", accent: "#2e8b34", glow: "#aaff99" },
 };
