@@ -9,7 +9,7 @@ import {
 import { CardWithMetadata } from "../../types";
 import { CardInputRow } from "./CardInputRow";
 import "./DeckShowcase.css";
-import { CANVAS_SIZE, DrawState, drawShowcase } from "./drawShowcase";
+import { CANVAS_SIZE, DrawState, drawShowcase, getCanvasDimensions } from "./drawShowcase";
 import { loadImage } from "./imageLoader";
 
 interface ShowcaseCard extends CardWithMetadata {
@@ -78,6 +78,7 @@ function useDebounce<T>(value: T, delay: number): T {
   return d;
 }
 
+type Shape = 'square' | 'card';
 const PREVIEW_SIZE = CANVAS_SIZE / 2;
 
 export function DeckShowcase() {
@@ -107,6 +108,7 @@ export function DeckShowcase() {
     string[] | null
   >(null);
   const [showColorIcons, setShowColorIcons] = useState(true);
+  const [shape, setShape] = useState<Shape>('square');
 
   const [colorIconImgs, setColorIconImgs] = useState<
     Partial<Record<string, HTMLImageElement>>
@@ -308,6 +310,7 @@ export function DeckShowcase() {
       colorIcons: colorIconImgs,
       showColorIcons,
       qrImg,
+      shape,
     };
 
     lastDrawStateRef.current = state;
@@ -336,6 +339,7 @@ export function DeckShowcase() {
     showColorIcons,
     qrImg,
     manualColorIdentity,
+    shape,
   ]);
 
   const applyCardUpdate = useCallback(
@@ -542,8 +546,9 @@ export function DeckShowcase() {
     const state = lastDrawStateRef.current;
     if (!state) return;
     const full = document.createElement("canvas");
-    full.width = CANVAS_SIZE;
-    full.height = CANVAS_SIZE;
+    const fullDims = getCanvasDimensions(shape, CANVAS_SIZE);
+    full.width = fullDims.width;
+    full.height = fullDims.height;
     document.fonts.ready.then(() => {
       drawShowcase(full, state);
       full.toBlob((blob) => {
@@ -622,10 +627,20 @@ export function DeckShowcase() {
         <div className="showcase-preview">
           <canvas
             ref={canvasRef}
-            width={PREVIEW_SIZE}
-            height={PREVIEW_SIZE}
-            className="showcase-canvas"
+            width={getCanvasDimensions(shape, PREVIEW_SIZE).width}
+            height={getCanvasDimensions(shape, PREVIEW_SIZE).height}
+            className={`showcase-canvas${shape === 'card' ? ' showcase-canvas--card' : ''}`}
           />
+          <div className="showcase-shape-toggle">
+            <button
+              className={`shape-btn ${shape === 'square' ? 'active' : ''}`}
+              onClick={() => setShape('square')}
+            >Square</button>
+            <button
+              className={`shape-btn ${shape === 'card' ? 'active' : ''}`}
+              onClick={() => setShape('card')}
+            >Card</button>
+          </div>
           <div className="showcase-preview-actions">
             <button className="showcase-download-btn" onClick={handleDownload}>
               Download PNG
