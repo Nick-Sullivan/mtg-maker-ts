@@ -1,18 +1,10 @@
 import { GitCompare, Image, Printer } from "lucide-react";
 import { useState } from "react";
+import { NavLink } from "react-router-dom";
 import "./BurgerMenu.css";
 
 export function BurgerMenu() {
   const [isOpen, setIsOpen] = useState(false);
-
-  // Detect current page from window.location
-  const currentPath = window.location.pathname;
-  const isProxyMaker =
-    currentPath.includes("proxy-maker") ||
-    currentPath === "/mtg-maker/" ||
-    currentPath === "/mtg-maker";
-  const isCompareDecks = currentPath.includes("compare-decks");
-  const isDeckShowcase = currentPath.includes("deck-showcase");
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);
@@ -40,31 +32,22 @@ export function BurgerMenu() {
         </div>
         <ul className="burger-menu-links">
           <li>
-            <a
-              href="/mtg-maker/proxy-maker.html"
-              className={isProxyMaker ? "active" : ""}
-            >
+            <NavLink to="/proxy-maker" className={({ isActive }) => isActive ? "active" : ""} onClick={closeMenu}>
               <Printer className="menu-icon" size={20} />
               Proxy Maker
-            </a>
+            </NavLink>
           </li>
           <li>
-            <a
-              href="/mtg-maker/compare-decks.html"
-              className={isCompareDecks ? "active" : ""}
-            >
+            <NavLink to="/compare-decks" className={({ isActive }) => isActive ? "active" : ""} onClick={closeMenu}>
               <GitCompare className="menu-icon" size={20} />
               Compare Decks
-            </a>
+            </NavLink>
           </li>
           <li>
-            <a
-              href="/mtg-maker/deck-showcase.html"
-              className={isDeckShowcase ? "active" : ""}
-            >
+            <NavLink to="/deck-showcase" className={({ isActive }) => isActive ? "active" : ""} onClick={closeMenu}>
               <Image className="menu-icon" size={20} />
               Deck Showcase
-            </a>
+            </NavLink>
           </li>
         </ul>
       </nav>
